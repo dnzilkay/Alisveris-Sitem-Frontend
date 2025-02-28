@@ -8,7 +8,7 @@ Kısa bir açıklama: Bu proje, web sitesi frontendini geliştirmek için oluşt
 
 **Ekran Görüntüleri:**
 ![Ana Sayfa](src\ekrangoruntuleri\deniz-ilkay-alisveris-sitesi.netlify.app_.png)
-![Ürün Detay Sayfası](src/ekrangoruntuleri/ürün detay sayfası.png)
+![Ürün Detay Sayfası](src/ekrangoruntuleri/ürün detay sayfası.png).
 ![Admin Paneli ](src/ekrangoruntuleri/adminpaneli.png)
 
 
