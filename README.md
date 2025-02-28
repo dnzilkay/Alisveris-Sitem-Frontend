@@ -1,28 +1,20 @@
-# 🛍️ Alışveriş Sitesi Frontend README
+# 🛍️ Alışveriş Sitesi Frontend 
 
 Kısa bir açıklama: Bu proje, web sitesi frontendini geliştirmek için oluşturulmuştur.
 
 ## 🎥 Proje Tanıtımı
-Bu bölümde projenin nasıl çalıştığını gösteren bir demo videosu, ekran görüntüleri veya canlı bir önizleme bağlantısı ekleyebilirsiniz.
 
-**Canlı Demo:** [Proje Canlı Linki](#)
+**Canlı Demo:** [https://deniz-ilkay-alisveris-sitesi.netlify.app/](#)
 
 **Ekran Görüntüleri:**
-![Ana Sayfa](#)
-![Özellikler](#)
+![Ana Sayfa](src\ekrangoruntuleri\deniz-ilkay-alisveris-sitesi.netlify.app_.png)
+![Ürün Detay Sayfası](src/ekrangoruntuleri/ürün detay sayfası.png)
+![Admin Paneli ](src/ekrangoruntuleri/adminpaneli.png)
 
-## 📋 İçindekiler
-- [Özellikler](#özellikler)
-- [Kurulum](#kurulum)
-- [Kullanım](#kullanım)
-- [Gereksinimler](#gereksinimler)
-- [Katkıda Bulunma](#katk%C4%B1da-bulunma)
-- [Lisans](#lisans)
 
 ## 🚀 Özellikler
 - 🎨 Modern ve duyarlı tasarım
 - ⚡ Hızlı ve optimize edilmiş performans
-- 📱 Mobil uyumlu
 - 🌍 Çapraz tarayıcı desteği
 
 ## 🛠️ Kurulum
@@ -45,6 +37,15 @@ npm run dev  # veya yarn dev
 ```bash
 npm run build  # veya yarn build
 ```
+## 🧪 Test Kullanıcıları
+Bu proje için aşağıdaki test kullanıcılarını kullanabilirsiniz:
+
+| Kullanıcı Türü | E-posta               | Şifre     |
+|---------------|-----------------------|----------|
+| **Kullanıcı** | `user@example.com`     | `user123` |
+| **Admin**     | `admin@example.com`    | `admin123` |
+
+📌 **Not:** Bu hesaplar yalnızca test amaçlıdır ve üretim ortamında kullanılmamalıdır.
 
 ## 📌 Gereksinimler
 - Kullanıcı, backend'i çalıştırmak için mock data kullanabilir veya backend dosyasını indirerek çalıştırabilir.
@@ -58,22 +59,5 @@ npm run build  # veya yarn build
 - Paket yöneticisi (npm veya yarn)
 - Tarayıcı desteği
 
-## 🤝 Katkıda Bulunma
-Katkıda bulunmak için şu adımları izleyin:
-1. Bu repoyu forklayın
-2. Yeni bir branch oluşturun (`feature-branch`)
-3. Değişikliklerinizi yapın ve commitleyin (`git commit -m 'Yeni özellik ekledim'`)
-4. Değişiklikleri pushlayın (`git push origin feature-branch`)
-5. Bir Pull Request (PR) açın
 
-## 🎥 Proje Tanıtımı
-Bu bölümde projenin nasıl çalıştığını gösteren bir demo videosu, ekran görüntüleri veya canlı bir önizleme bağlantısı ekleyebilirsiniz.
 
-**Canlı Demo:** [Proje Canlı Linki](#)
-
-**Ekran Görüntüleri:**
-![Ana Sayfa](#)
-![Özellikler](#)
-
-## 📜 Lisans
-Bu proje [MIT](LICENSE) lisansı ile lisanslanmıştır.
