@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 import { Box, Tabs, Tab, Typography, TextField, Button, Snackbar, Alert } from "@mui/material";
-import { loginUser, registerUser } from "../services/authService";
-import { useAuth } from '../context/AuthContext'; // AuthContext'i kullanıyoruz
-import { useNavigate } from 'react-router-dom'; // Kullanıcıyı yönlendirmek için
+import { registerUser } from "../services/authService"; // Sadece register işlemi burada
+import { useAuth } from '../context/AuthContext';
+import { useNavigate } from 'react-router-dom';
 
 const Auth: React.FC = () => {
     const [tabIndex, setTabIndex] = useState(0);
@@ -12,8 +12,8 @@ const Auth: React.FC = () => {
     const [error, setError] = useState("");
     const [success, setSuccess] = useState(false);
 
-    const { login } = useAuth(); // AuthContext'teki login fonksiyonunu kullanıyoruz
-    const navigate = useNavigate(); // Yönlendirme işlemleri için
+    const { login } = useAuth(); // AuthContext üzerinden login fonksiyonunu alıyoruz
+    const navigate = useNavigate();
 
     const handleTabChange = (_: React.SyntheticEvent, newValue: number) => {
         setTabIndex(newValue);
@@ -21,32 +21,39 @@ const Auth: React.FC = () => {
     };
 
     const handleLogin = async () => {
+        if (!email || !password) {
+            setError("E-posta ve şifre boş bırakılamaz!");
+            return;
+        }
+
         try {
-            const response = await loginUser({ email, password });
-            //@ts-ignore
-            login(response.token, response.role,response.username); // AuthContext login fonksiyonunu çağırıyoruz
+            // **Login işlemi artık doğrudan `useAuth().login()` üzerinden çağrılıyor**
+            await login(email, password);
             setSuccess(true);
             setError("");
 
-            // Kullanıcı rolüne göre yönlendirme
-            if (response.role === "admin") {
-                navigate("/admin");
-            } else {
-                navigate("/");
-            }
+            navigate("/"); // Başarıyla giriş yaptıktan sonra yönlendir
         } catch (err) {
+            console.error("Giriş hatası:", err);
             setError("Giriş başarısız, bilgilerinizi kontrol edin.");
         }
     };
 
     const handleRegister = async () => {
+        if (!username || !email || !password) {
+            setError("Tüm alanları doldurun!");
+            return;
+        }
+
         try {
             await registerUser({ username, email, password });
-            navigate("/");
-            setTabIndex(0); // Başarılı kayıt sonrası giriş sekmesine geç
+
+            setTabIndex(0);
             setSuccess(true);
             setError("");
+            navigate("/");
         } catch (err) {
+            console.error("Kayıt hatası:", err);
             setError("Kayıt başarısız, bilgilerinizi kontrol edin.");
         }
     };

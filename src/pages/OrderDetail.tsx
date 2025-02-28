@@ -9,21 +9,23 @@ import {
     Grid,
     Button,
     CardMedia,
+    CircularProgress
 } from "@mui/material";
 import { useParams } from "react-router-dom";
-import { useAuth } from "../context/AuthContext"; // AuthContext import edildi
-import { getOrders, updateOrderStatus } from "../services/orderService"; // orderService import edildi
-import { fetchProducts } from "../services/productService"; // Ürünleri almak için import edildi
+import { useAuth } from "../context/AuthContext";
+import { getOrders, updateOrderStatus } from "../services/orderService";
+import { fetchProducts } from "../services/productService";
 
-// Sipariş Durumları
 const steps = ["Ödeme Bekleniyor", "Onaylandı", "Hazırlanıyor", "Teslim Edildi", "İptal Edildi"];
 
 const getStatusStep = (status: string) => {
-    if (status === "İptal Edildi") return 4;
-    if (status === "Teslim Edildi") return 3;
-    if (status === "Hazırlanıyor") return 2;
-    if (status === "Onaylandı") return 1;
-    return 0;
+    switch (status) {
+        case "İptal Edildi": return 4;
+        case "Teslim Edildi": return 3;
+        case "Hazırlanıyor": return 2;
+        case "Onaylandı": return 1;
+        default: return 0;
+    }
 };
 
 const OrderDetail: React.FC = () => {
@@ -31,32 +33,29 @@ const OrderDetail: React.FC = () => {
     const { user } = useAuth();
     const [order, setOrder] = useState<any | null>(null);
     const [products, setProducts] = useState<any[]>([]);
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         if (user?.id) {
             console.log("Giriş yapan kullanıcı ID'si:", user.id);
 
-            // Siparişleri al
-            getOrders()
-                .then((allOrders) => {
+            Promise.all([
+                getOrders(),
+                fetchProducts()
+            ])
+                .then(([allOrders, fetchedProducts]) => {
                     console.log("Tüm Siparişler:", allOrders);
+                    console.log("Tüm Ürünler:", fetchedProducts);
 
                     const selectedOrder = allOrders.find(
                         (order: any) => order.userId === user.id && order.id === Number(id)
                     );
-                    console.log("Seçilen Sipariş:", selectedOrder);
 
                     setOrder(selectedOrder || null);
-                })
-                .catch((error) => console.error("Siparişler alınırken hata:", error));
-
-            // Ürünleri al
-            fetchProducts()
-                .then((fetchedProducts) => {
-                    console.log("Tüm Ürünler:", fetchedProducts);
                     setProducts(fetchedProducts);
                 })
-                .catch((error) => console.error("Ürünler alınırken hata oluştu:", error));
+                .catch((error) => console.error("Sipariş veya ürünler alınırken hata:", error))
+                .finally(() => setLoading(false));
         }
     }, [user, id]);
 
@@ -67,18 +66,24 @@ const OrderDetail: React.FC = () => {
             updateOrderStatus(order.id, "İptal Edildi")
                 .then(() => {
                     console.log("Sipariş başarıyla iptal edildi.");
-                    setOrder((prevOrder: any) => {
-                        if (!prevOrder) return null;
-                        return { ...prevOrder, status: "İptal Edildi" };
-                    });
+                    setOrder((prevOrder: any) => prevOrder ? { ...prevOrder, status: "İptal Edildi" } : null);
                 })
                 .catch((error) => console.error("Sipariş iptal edilirken hata:", error));
         }
     };
 
+    if (loading) {
+        return <Box sx={{ textAlign: "center", marginTop: 5 }}><CircularProgress /></Box>;
+    }
+
     if (!order) {
         console.log("Sipariş bulunamadı veya bu kullanıcıya ait değil.");
-        return <Typography variant="h6" align="center">Sipariş Bulunamadı</Typography>;
+        return (
+            <Box sx={{ textAlign: "center", marginTop: 5 }}>
+                <Typography variant="h6">Sipariş Bulunamadı</Typography>
+                <Typography variant="body2">Geçersiz sipariş ID veya siparişiniz bulunmuyor.</Typography>
+            </Box>
+        );
     }
 
     const filteredSteps = order.status === "İptal Edildi" ? ["İptal Edildi"] : steps;
@@ -91,7 +96,7 @@ const OrderDetail: React.FC = () => {
             <Divider sx={{ marginBottom: 3 }} />
 
             <Box sx={{ marginBottom: 4, padding: 2, border: "1px solid #ddd", borderRadius: 2 }}>
-                <Typography variant="body2">Toplam Tutar: {order.price || 'Bilinmiyor'} TL</Typography>
+                <Typography variant="body2">Toplam Tutar: {order.total || 'Bilinmiyor'} TL</Typography>
 
                 <Box sx={{ marginTop: 2 }}>
                     <Typography variant="h6">Sipariş Durumu</Typography>
@@ -111,50 +116,51 @@ const OrderDetail: React.FC = () => {
                 <Box sx={{ marginTop: 2 }}>
                     <Typography variant="h6">Ürünler</Typography>
                     <Grid container spacing={2}>
-                        {order.items.map((item: any) => {
-                            const product = products.find((p: any) => p.id === item.Product.id);
-                            return (
-                                <Grid item xs={12} key={item.id}>
-                                    <Box
-                                        sx={{
-                                            display: "flex",
-                                            alignItems: "center",
-                                            padding: 2,
-                                            border: "1px solid #ddd",
-                                            borderRadius: 2,
-                                            backgroundColor: "#f9f9f9",
-                                        }}
-                                    >
-                                        <CardMedia
-                                            component="img"
-                                            height="200"
-                                            image={
-                                                product?.images && product.images.length > 0
-                                                    ? product.images[0].url // İlk resim URL'sini kullan
-                                                    : "https://via.placeholder.com/200" // Varsayılan görsel
-                                            }
-                                            alt={product?.name || "Ürün Görseli"}
-                                            sx={{ width: 200, marginRight: 2, borderRadius: 2 }}
-                                        />
-                                        <Box sx={{ flex: 1 }}>
-                                            <Typography variant="body1">{item.Product.name}</Typography>
-                                            <Typography variant="body2">Adet: {item.quantity}</Typography>
+                        {order.items && order.items.length > 0 ? (
+                            order.items.map((item: any) => {
+                                const product = products.find((p: any) => p.id === item.productId);
+                                return (
+                                    <Grid item xs={12} key={item.productId}>
+                                        <Box
+                                            sx={{
+                                                display: "flex",
+                                                alignItems: "center",
+                                                padding: 2,
+                                                border: "1px solid #ddd",
+                                                borderRadius: 2,
+                                                backgroundColor: "#f9f9f9",
+                                            }}
+                                        >
+                                            <CardMedia
+                                                component="img"
+                                                height="200"
+                                                image={
+                                                    product?.images && product.images.length > 0
+                                                        ? product.images[0]
+                                                        : "https://via.placeholder.com/200"
+                                                }
+                                                alt={product?.name || "Ürün Görseli"}
+                                                sx={{ width: 200, marginRight: 2, borderRadius: 2 }}
+                                            />
+                                            <Box sx={{ flex: 1 }}>
+                                                <Typography variant="body1">{product?.name || "Bilinmeyen Ürün"}</Typography>
+                                                <Typography variant="body2">Adet: {item.quantity}</Typography>
+                                            </Box>
+                                            <Typography variant="body2" sx={{ fontWeight: "bold" }}>
+                                                {product?.price ? `${product.price} TL` : "Fiyat Bilinmiyor"}
+                                            </Typography>
                                         </Box>
-                                        <Typography variant="body2" sx={{ fontWeight: "bold" }}>{item.Product.price} TL</Typography>
-                                    </Box>
-                                </Grid>
-                            );
-                        })}
+                                    </Grid>
+                                );
+                            })
+                        ) : (
+                            <Typography variant="body2" color="textSecondary">Ürün bilgisi bulunamadı.</Typography>
+                        )}
                     </Grid>
                 </Box>
 
                 {order.status !== "Teslim Edildi" && order.status !== "İptal Edildi" && (
-                    <Button
-                        variant="contained"
-                        color="error"
-                        sx={{ marginTop: 2 }}
-                        onClick={handleCancelOrder}
-                    >
+                    <Button variant="contained" color="error" sx={{ marginTop: 2 }} onClick={handleCancelOrder}>
                         Siparişi İptal Et
                     </Button>
                 )}

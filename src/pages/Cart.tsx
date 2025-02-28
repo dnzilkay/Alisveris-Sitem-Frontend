@@ -19,13 +19,15 @@ import {
 import DeleteIcon from "@mui/icons-material/Delete";
 import AddIcon from "@mui/icons-material/Add";
 import RemoveIcon from "@mui/icons-material/Remove";
-import { useCart } from "../context/CartContext"; // Sepet context'i kullanılıyor
-import { useAuth } from "../context/AuthContext"; // Auth context'i kullanılıyor
-import { addOrder } from "../services/orderService"; // Sipariş ekleme servisi
+import { useCart } from "../context/CartContext";
+import { useAuth } from "../context/AuthContext";
+import { addOrder } from "../services/orderService";
+
+const useBackend = import.meta.env.VITE_USE_BACKEND === "true";
 
 const Cart: React.FC = () => {
     const { cart, increaseQuantity, decreaseQuantity, removeItem, clearCart, completeOrder } = useCart();
-    const { user } = useAuth(); // Kullanıcı bilgilerini al
+    const { user } = useAuth();
     const [address, setAddress] = useState("");
     const [paymentType, setPaymentType] = useState("Kart");
     const [snackbarOpen, setSnackbarOpen] = useState(false);
@@ -35,7 +37,7 @@ const Cart: React.FC = () => {
     // Toplam Tutar Hesaplama
     const totalPrice = cart.reduce((sum, item) => sum + Number(item.price) * item.quantity, 0);
 
-    // Sipariş Gönderme
+    // Sipariş Gönderme (Backend veya Mock)
     const handleOrderSubmit = async () => {
         console.log("AuthContext Kullanıcı:", user);
 
@@ -46,7 +48,7 @@ const Cart: React.FC = () => {
             return;
         }
 
-        if (!user || typeof user.id !== "number" || isNaN(user.id)) { // Kullanıcı ID'sini kontrol et
+        if (!user || typeof user.id !== "number" || isNaN(user.id)) {
             setSnackbarMessage("Kullanıcı bilgisi eksik. Lütfen giriş yapın.");
             setSnackbarSeverity("error");
             setSnackbarOpen(true);
@@ -65,27 +67,28 @@ const Cart: React.FC = () => {
             }
 
             const order = {
-                userId: userId, // Kullanıcı ID'si
+                userId: userId,
+                total: Number(totalPrice.toFixed(2)), // "price" yerine "total" kullanılıyor
                 items: cart.map((item) => ({
                     productId: item.id,
                     quantity: item.quantity,
                 })),
-                deliveryAddress: address.trim(),
-                paymentType,
-                price: Number(totalPrice.toFixed(2)), // Tam sayı veya iki basamaklı float olarak fiyat gönder
             };
 
-            console.log("Gönderilecek Sipariş Verisi:", order); // Debug için log
+            console.log("Gönderilecek Sipariş Verisi:", order);
 
-            await addOrder(order); // Backend'e sipariş gönder
+            if (useBackend) {
+                await addOrder(order);
+            } else {
+                console.log("Mock Sipariş Eklendi:", order);
+            }
 
-            // Siparişi tamamla ve satış miktarlarını artır
             completeOrder();
 
             setSnackbarMessage("Sipariş başarıyla oluşturuldu!");
             setSnackbarSeverity("success");
             setSnackbarOpen(true);
-            clearCart(); // Sepeti boşalt
+            clearCart();
         } catch (error) {
             console.error("Sipariş gönderim hatası:", error);
             setSnackbarMessage("Sipariş gönderilirken bir hata oluştu.");
@@ -135,7 +138,6 @@ const Cart: React.FC = () => {
                 <Typography>Sepetiniz boş.</Typography>
             )}
 
-            {/* Ödeme ve Adres Alanları */}
             {cart.length > 0 && (
                 <Box sx={{ marginTop: 4 }}>
                     <TextField
@@ -158,7 +160,6 @@ const Cart: React.FC = () => {
                 </Box>
             )}
 
-            {/* Toplam Tutar ve Ödeme */}
             <Box sx={{ textAlign: "right", marginTop: 3 }}>
                 <Typography variant="h6">Toplam Tutar: {totalPrice.toLocaleString()} TL</Typography>
                 <Button
@@ -172,7 +173,6 @@ const Cart: React.FC = () => {
                 </Button>
             </Box>
 
-            {/* Snackbar */}
             <Snackbar
                 open={snackbarOpen}
                 autoHideDuration={3000}

@@ -171,11 +171,14 @@ const Home: React.FC = () => {
                                         height="200"
                                         image={
                                             product.images && product.images.length > 0
-                                                ? product.images[0].url // İlk resim URL'sini kullan
-                                                : "https://via.placeholder.com/200" // Varsayılan görsel
+                                                ? Array.isArray(product.images) && typeof product.images[0] === "string"
+                                                    ? product.images[0] // Eğer `images[0]` bir `string` ise, direkt kullan
+                                                    : product.images[0].url // Eğer `images[0]` bir `object` ise, `.url` özelliğini kullan
+                                                : "https://via.placeholder.com/200" // Varsayılan resim
                                         }
                                         alt={product.name}
                                     />
+
                                     <CardContent>
                                         <Typography variant="subtitle2" color="textSecondary">
                                             {product.category}
@@ -241,102 +244,6 @@ const Home: React.FC = () => {
                         ))}
                     </Grid>
                 </InfiniteScroll>
-
-                {/* Diğer Ürünler */}
-                {products.length > 3 && (
-                    <>
-                        <Typography variant="h5" sx={{ marginTop: 4, marginBottom: 3, textAlign: "center" }}>
-                            Diğer Ürünler
-                        </Typography>
-                        <Grid container spacing={3}>
-                            {products.slice(3).map((product) => (
-                                <Grid item xs={12} sm={6} md={4} key={product.id}>
-                                    <Card
-                                        sx={{
-                                            boxShadow: 3,
-                                            position: "relative",
-                                            cursor: "pointer",
-                                            transition: "transform 0.3s",
-                                            "&:hover": { boxShadow: 6, transform: "translateY(-5px)" },
-                                        }}
-                                        onClick={() => navigate(`/product/${product.id}`)}
-                                    >
-                                        <CardMedia
-                                            component="img"
-                                            height="200"
-                                            image={
-                                                product.images && product.images.length > 0
-                                                    ? product.images[0].url // İlk resim URL'sini kullan
-                                                    : "https://via.placeholder.com/200" // Varsayılan görsel
-                                            }
-                                            alt={product.name}
-                                        />
-                                        <CardContent>
-                                            <Typography variant="subtitle2" color="textSecondary">
-                                                {product.category}
-                                            </Typography>
-                                            <Typography variant="h6" noWrap>
-                                                {product.name}
-                                            </Typography>
-                                            <Box
-                                                sx={{
-                                                    display: "flex",
-                                                    justifyContent: "space-between",
-                                                    alignItems: "center",
-                                                }}
-                                            >
-                                                <Typography variant="h6" color="primary">
-                                                    {product.price.toLocaleString("tr-TR", {
-                                                        style: "currency",
-                                                        currency: "TRY",
-                                                    })}
-                                                </Typography>
-                                                <Button
-                                                    variant="contained"
-                                                    color="primary"
-                                                    onClick={(e) => {
-                                                        e.stopPropagation();
-                                                        addToCart({
-                                                            id: product.id,
-                                                            name: product.name,
-                                                            image: product.image,
-                                                            price: product.price,
-                                                            quantity: 1,
-                                                        });
-                                                    }}
-                                                >
-                                                    <ShoppingCart size={18} />
-                                                </Button>
-                                            </Box>
-                                        </CardContent>
-                                        <Box
-                                            sx={{
-                                                position: "absolute",
-                                                top: 9,
-                                                right: 9,
-                                                backgroundColor: "white",
-                                                borderRadius: "50%",
-                                                boxShadow: 1,
-                                            }}
-                                        >
-                                            <IconButton
-                                                onClick={(e) => {
-                                                    e.stopPropagation();
-                                                    toggleFavorite(product.id);
-                                                }}
-                                            >
-                                                <Heart
-                                                    size={25}
-                                                    color={favorites.includes(product.id) ? "red" : "gray"}
-                                                />
-                                            </IconButton>
-                                        </Box>
-                                    </Card>
-                                </Grid>
-                            ))}
-                        </Grid>
-                    </>
-                )}
             </Box>
         </Box>
     );

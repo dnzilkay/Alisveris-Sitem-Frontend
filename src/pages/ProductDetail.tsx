@@ -32,7 +32,7 @@ interface Product {
 
 const ProductDetail: React.FC = () => {
     const { id } = useParams<{ id: string }>();
-    const [product, setProduct] = useState<Product | null>(null);
+    const [item, setItem] = useState<Product | null>(null);
     const [similarProducts, setSimilarProducts] = useState<Product[]>([]);
     const [tabIndex, setTabIndex] = useState(0);
     const [review, setReview] = useState("");
@@ -62,7 +62,7 @@ const ProductDetail: React.FC = () => {
                 setError(null); // Önceki hatayı temizle
                 // Ürün bilgilerini al
                 const productData = await fetchProductById(Number(id));
-                setProduct(productData);
+                setItem(productData);
 
                 // Benzer ürünleri getir
                 const allProducts = await fetchProducts();
@@ -125,7 +125,7 @@ const ProductDetail: React.FC = () => {
         );
     }
 
-    if (!product) {
+    if (!item) {
         return <Typography variant="h5" align="center">Ürün Bulunamadı</Typography>;
     }
 
@@ -135,15 +135,21 @@ const ProductDetail: React.FC = () => {
             <Box sx={{ display: "flex", gap: 4, marginBottom: 4 }}>
                 <CardMedia
                     component="img"
-                    image={product.images[0]?.url} // İlk resmi göster
-                    alt={product.name}
+                    image={
+                        item.images && item.images.length > 0
+                            ? Array.isArray(item.images) && typeof item.images[0] === "string"
+                                ? item.images[0] // Eğer `images[0]` bir `string` ise, direkt kullan
+                                : item.images[0].url // Eğer `images[0]` bir `object` ise, `.url` özelliğini kullan
+                            : "https://via.placeholder.com/200" // Varsayılan resim
+                    }
+                    alt={item.name}
                     sx={{ width: "300px", borderRadius: 2 }}
                 />
                 <Box>
-                    <Typography variant="h4">{product.name}</Typography>
-                    <Typography paragraph>Stok: {product.stock}</Typography>
-                    <Typography paragraph>{product.description}</Typography>
-                    <Typography variant="h5" color="primary">{product.price} TL</Typography>
+                    <Typography variant="h4">{item.name}</Typography>
+                    <Typography paragraph>Stok: {item.stock}</Typography>
+                    <Typography paragraph>{item.description}</Typography>
+                    <Typography variant="h5" color="primary">{item.price} TL</Typography>
                     <Typography sx={{ marginTop: 1 }}>
                         Ortalama Puan: <Rating value={averageRating} readOnly /> ({averageRating.toFixed(1)})
                     </Typography>
@@ -153,10 +159,10 @@ const ProductDetail: React.FC = () => {
                         color="secondary"
                         onClick={() =>
                             addToCart({
-                                id: product.id,
-                                name: product.name,
-                                image: product.images[0]?.url || "", // İlk resmi kullan
-                                price: product.price,
+                                id: item.id,
+                                name: item.name,
+                                image: item.images[0]?.url || "https://via.placeholder.com/200", // İlk resmi kullan veya varsayılan
+                                price: item.price,
                                 quantity: 1,
                             })
                         }
@@ -244,7 +250,13 @@ const ProductDetail: React.FC = () => {
                                 <CardMedia
                                     component="img"
                                     height="140"
-                                    image={item.images[0]?.url || ""}
+                                    image={
+                                        item.images && item.images.length > 0
+                                            ? Array.isArray(item.images) && typeof item.images[0] === "string"
+                                                ? item.images[0] // Eğer `images[0]` bir `string` ise, direkt kullan
+                                                : item.images[0].url // Eğer `images[0]` bir `object` ise, `.url` özelliğini kullan
+                                            : "https://via.placeholder.com/200" // Varsayılan resim
+                                    }
                                     alt={item.name}
                                 />
                                 <CardContent>

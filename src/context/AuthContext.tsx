@@ -1,97 +1,69 @@
 import React, { createContext, useState, useContext, ReactNode, useEffect } from 'react';
+import { loginUser, logoutUser } from '../services/authService';
 
-// Kullanıcı tipi tanımları
 interface User {
-    id: number; // Kullanıcı ID'si
+    id: number;
     token: string;
     role: string;
-    username: string; // Kullanıcı adı
-    email: string; // E-posta adresi
+    username: string;
+    email: string;
+    exp: number;
 }
 
 interface AuthContextType {
     user: User | null;
     isAuthenticated: boolean;
-    login: (token: string, role: string, username: string,email:string) => void; // id çıkarıldı, token ile çalışılacak
+    login: (email: string, password: string) => Promise<void>;
     logout: () => void;
 }
 
-// Context oluştur
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-// JWT Çözümleme Fonksiyonu
-const parseJwt = (token: string) => {
-    try {
-        const base64Url = token.split('.')[1];
-        const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-        const jsonPayload = decodeURIComponent(
-            atob(base64)
-                .split('')
-                .map((c) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
-                .join('')
-        );
-        return JSON.parse(jsonPayload);
-    } catch (error) {
-        console.error('JWT çözümleme hatası:', error);
-        return null;
-    }
-};
-
-// AuthProvider bileşeni
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     const [user, setUser] = useState<User | null>(null);
 
-    // Giriş işlemi
-    const login = (token: string, role: string, username: string, email:string) => {
-        const decodedToken = parseJwt(token);
-        const id = decodedToken?.id;
-
-        if (!id) {
-            console.error('JWT içinden kullanıcı ID alınamadı.');
-            return;
+    // **Giriş İşlemi**
+    const login = async (email: string, password: string) => {
+        try {
+            const response = await loginUser({ email, password });
+            if (!response.token) {
+                throw new Error("Geçersiz yanıt: Token alınamadı.");
+            }
+            const tokenPayload = JSON.parse(atob(response.token.split('.')[1]));
+            setUser(tokenPayload);
+            localStorage.setItem('authToken', response.token);
+        } catch (error) {
+            console.error("Giriş hatası:", error);
         }
-
-        setUser({ id, token, role, username ,email});
-        localStorage.setItem('userId', id.toString());
-        localStorage.setItem('authToken', token);
-        localStorage.setItem('role', role);
-        localStorage.setItem('username', username);
-        localStorage.setItem('email', email);
     };
 
-    // Çıkış işlemi
+    // **Çıkış İşlemi**
     const logout = () => {
+        logoutUser();
         setUser(null);
-        localStorage.removeItem('userId');
-        localStorage.removeItem('authToken');
-        localStorage.removeItem('role');
-        localStorage.removeItem('username');
-        localStorage.removeItem('email'); // E-posta da silinecek
     };
 
-    // Kullanıcı doğrulama
-    const isAuthenticated = !!user;
-
+    // **Kullanıcı Oturumunu Yükleme**
     useEffect(() => {
-        const id = Number(localStorage.getItem('userId'));
         const token = localStorage.getItem('authToken');
-        const role = localStorage.getItem('role');
-        const username = localStorage.getItem('username');
-        const email = localStorage.getItem('email');
-
-        if (id && token && role && username && email) {
-            setUser({ id, token, role, username ,email});
+        if (token) {
+            const tokenPayload = JSON.parse(atob(token.split('.')[1]));
+            if (tokenPayload.exp > Math.floor(Date.now() / 1000)) {
+                setUser(tokenPayload);
+            } else {
+                logout();
+            }
         }
     }, []);
 
     return (
-        <AuthContext.Provider value={{ user, isAuthenticated, login, logout }}>
+        <AuthContext.Provider value={{ user, isAuthenticated: !!user, login, logout }}>
             {children}
         </AuthContext.Provider>
     );
 };
 
-// AuthContext Hooku
+// **AuthContext Hook'u**
 export const useAuth = () => {
     const context = useContext(AuthContext);
     if (!context) {

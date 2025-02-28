@@ -1,38 +1,79 @@
-src/
-├── Admin/                   # Yönetici paneli bileşenleri
-│   ├── adminCategories.tsx  # Kategori yönetimi bileşeni
-│   ├── adminDashboard.tsx   # Yönetici ana paneli bileşeni
-│   ├── adminOrders.tsx      # Sipariş yönetimi bileşeni
-│   ├── AdminPanel.tsx       # Ana yönetici paneli bileşeni
-│   ├── adminProducts.tsx    # Ürün yönetimi bileşeni
-│   └── adminUsers.tsx       # Kullanıcı yönetimi bileşeni
-├── components/               # Tekrar kullanılabilir bileşenler
-│   ├── Footer.tsx            # Footer bileşeni
-│   ├── HomeNavbar.tsx        # Ana sayfa için özel Navbar
-│   ├── Navbar.tsx            # Genel Navbar bileşeni
-│   └── SearchBar.tsx         # Arama çubuğu bileşeni
-├── context/                  # Context API ile durum yönetimi
-│   ├── AuthContext.tsx       # Kullanıcı giriş durumu
-│   ├── CartContext.tsx       # Sepet durumu
-│   └── ThemeContext.tsx      # Koyu/Açık mod durumu
-├── pages/                    # Sayfa bileşenleri
-│   ├── Auth.tsx              # Giriş ve kayıt işlemleri
-│   ├── Cart.tsx              # Sepet sayfası
-│   ├── CategoryPage.tsx      # Kategori sayfası
-│   ├── Home.tsx              # Ana sayfa (Ürün listesi)
-│   ├── OrderDetail.tsx       # Sipariş detay sayfası
-│   ├── Orders.tsx            # Siparişler sayfası
-│   ├── ProductDetail.tsx     # Ürün detay sayfası
-│   └── Profile.tsx           # Kullanıcı profili sayfası
-├── services/                 # API çağrıları
-│   ├── authService.ts        # Kimlik doğrulama API'leri
-│   ├── categoryService.ts    # Kategori API'leri
-│   ├── orderService.ts       # Sipariş API'leri
-│   ├── productService.ts     # Ürün API'leri
-│   └── userService.ts        # Kullanıcı API'leri
-├── styles/                   # Proje genelinde kullanılacak özel stiller
-│   └── global.css            # Global CSS dosyası
-├── App.tsx                   # Ana bileşen
-├── main.tsx                  # React DOM render işlemi
-├── apiClient.ts              # API çağrılarını yöneten genel dosya
-├── vite-env.d.ts             # Vite tarafından sağlanan tür tanımları
+# 🛍️ Alışveriş Sitesi Frontend README
+
+Kısa bir açıklama: Bu proje, web sitesi frontendini geliştirmek için oluşturulmuştur.
+
+## 🎥 Proje Tanıtımı
+Bu bölümde projenin nasıl çalıştığını gösteren bir demo videosu, ekran görüntüleri veya canlı bir önizleme bağlantısı ekleyebilirsiniz.
+
+**Canlı Demo:** [Proje Canlı Linki](#)
+
+**Ekran Görüntüleri:**
+![Ana Sayfa](#)
+![Özellikler](#)
+
+## 📋 İçindekiler
+- [Özellikler](#özellikler)
+- [Kurulum](#kurulum)
+- [Kullanım](#kullanım)
+- [Gereksinimler](#gereksinimler)
+- [Katkıda Bulunma](#katk%C4%B1da-bulunma)
+- [Lisans](#lisans)
+
+## 🚀 Özellikler
+- 🎨 Modern ve duyarlı tasarım
+- ⚡ Hızlı ve optimize edilmiş performans
+- 📱 Mobil uyumlu
+- 🌍 Çapraz tarayıcı desteği
+
+## 🛠️ Kurulum
+Projeyi klonlayın:
+```bash
+git clone https://github.com/kullanici/proje-frontend.git
+```
+Gerekli bağımlılıkları yükleyin:
+```bash
+npm install  # veya yarn install
+```
+
+## 🎮 Kullanım
+Geliştirme ortamında çalıştırmadan önce `.env` dosyanızın doğru yapılandırıldığından emin olun.
+Geliştirme ortamında çalıştırmak için:
+```bash
+npm run dev  # veya yarn dev
+```
+Üretim için derlemek:
+```bash
+npm run build  # veya yarn build
+```
+
+## 📌 Gereksinimler
+- Kullanıcı, backend'i çalıştırmak için mock data kullanabilir veya backend dosyasını indirerek çalıştırabilir.
+- Backend bağlantısının düzgün çalışması için `.env` dosyanızda aşağıdaki değişkenlerin bulunması gerekmektedir. `VITE_USE_BACKEND` değişkenini `true` veya `false` olarak ayarlayarak backend kullanımını belirleyebilirsiniz:
+  ```ini
+  VITE_API_BASE_URL=http://localhost:3000
+  VITE_USE_BACKEND=true
+  ```
+- Kullanıcı, backend'i çalıştırmak için mock data kullanabilir veya backend dosyasını indirerek çalıştırabilir.
+- Node.js (en son sürüm önerilir)
+- Paket yöneticisi (npm veya yarn)
+- Tarayıcı desteği
+
+## 🤝 Katkıda Bulunma
+Katkıda bulunmak için şu adımları izleyin:
+1. Bu repoyu forklayın
+2. Yeni bir branch oluşturun (`feature-branch`)
+3. Değişikliklerinizi yapın ve commitleyin (`git commit -m 'Yeni özellik ekledim'`)
+4. Değişiklikleri pushlayın (`git push origin feature-branch`)
+5. Bir Pull Request (PR) açın
+
+## 🎥 Proje Tanıtımı
+Bu bölümde projenin nasıl çalıştığını gösteren bir demo videosu, ekran görüntüleri veya canlı bir önizleme bağlantısı ekleyebilirsiniz.
+
+**Canlı Demo:** [Proje Canlı Linki](#)
+
+**Ekran Görüntüleri:**
+![Ana Sayfa](#)
+![Özellikler](#)
+
+## 📜 Lisans
+Bu proje [MIT](LICENSE) lisansı ile lisanslanmıştır.

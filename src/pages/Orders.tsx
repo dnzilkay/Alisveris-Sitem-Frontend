@@ -9,8 +9,8 @@ import {
     LinearProgress,
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "../context/AuthContext"; // AuthContext import edildi
-import { getOrders, updateOrderStatus } from "../services/orderService"; // Backend'den siparişleri çekmek ve güncellemek için
+import { useAuth } from "../context/AuthContext";
+import { getOrders, updateOrderStatus } from "../services/orderService";
 
 const Orders: React.FC = () => {
     const navigate = useNavigate();
@@ -18,22 +18,22 @@ const Orders: React.FC = () => {
     const [orders, setOrders] = useState<any[]>([]);
 
     useEffect(() => {
-        if (user?.id) {
-            console.log("Giriş yapan kullanıcı ID'si:", user.id);
+        if (!user?.id) return;
 
-            getOrders()
-                .then((allOrders) => {
-                    console.log("Tüm Siparişler:", allOrders);
-                    const userOrders = allOrders.filter((order: any) => order.userId === user.id);
-                    console.log("Kullanıcıya Ait Siparişler:", userOrders);
-                    setOrders(userOrders);
-                })
-                .catch((error) => console.error("Siparişler alınırken hata oluştu:", error));
-        }
+        console.log("Giriş yapan kullanıcı ID'si:", user.id);
+
+        getOrders()
+            .then((allOrders) => {
+                console.log("Tüm Siparişler:", allOrders);
+                const userOrders = allOrders.filter((order: any) => order.userId === user.id);
+                setOrders(userOrders);
+            })
+            .catch((error) => console.error("Siparişler alınırken hata oluştu:", error));
     }, [user]);
 
     const handleCancelOrder = (orderId: number) => {
         console.log(`Sipariş ${orderId} iptal ediliyor...`);
+
         updateOrderStatus(orderId, "İptal Edildi")
             .then(() => {
                 console.log("Sipariş başarıyla iptal edildi.");
@@ -63,7 +63,7 @@ const Orders: React.FC = () => {
                 {orders.map((order) => (
                     <ListItem key={order.id} divider sx={{ alignItems: "flex-start" }}>
                         <Box sx={{ flex: 1 }}>
-                            <Typography variant="h6">Toplam: {order.price} TL</Typography>
+                            <Typography variant="h6">Toplam: {order.total} TL</Typography>
                             <Typography
                                 variant="body2"
                                 sx={{
