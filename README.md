@@ -4,12 +4,13 @@ Kısa bir açıklama: Bu proje, web sitesi frontendini geliştirmek için oluşt
 
 ## 🎥 Proje Tanıtımı
 
-**Canlı Demo:** [https://deniz-ilkay-alisveris-sitesi.netlify.app/](#)
+**Canlı Demo:** [Deniz İlkay Alışveriş Sitesi](https://deniz-ilkay-alisveris-sitesi.netlify.app/)
 
 **Ekran Görüntüleri:**
-![Ana Sayfa](src\ekrangoruntuleri\deniz-ilkay-alisveris-sitesi.netlify.app_.png)
-![Ürün Detay Sayfası](src/ekrangoruntuleri/ürün detay sayfası.png).
-![Admin Paneli ](src/ekrangoruntuleri/adminpaneli.png)
+![Ana Sayfa](src/ekrangoruntuleri/deniz-ilkay-alisveris-sitesi.netlify.app_.png)
+![Ürün Detay Sayfası](src/ekrangoruntuleri/urun_detay_sayfasi.png)
+![Admin Paneli](src/ekrangoruntuleri/adminpaneli.png)
+
 
 
 ## 🚀 Özellikler
