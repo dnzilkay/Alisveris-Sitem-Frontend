@@ -59,15 +59,29 @@ const Auth: React.FC = () => {
     };
 
     return (
-        <Box sx={{ maxWidth: 400, margin: "auto", marginTop: 5, padding: 3, boxShadow: 3, borderRadius: 2 }}>
-            <Tabs value={tabIndex} onChange={handleTabChange} centered>
-                <Tab label="Giriş Yap" />
-                <Tab label="Kayıt Ol" />
+        <Box
+            sx={{
+                maxWidth: { xs: "90%", sm: 450 },
+                margin: "auto",
+                marginTop: { xs: 3, md: 5 },
+                padding: { xs: 2, sm: 3 },
+                boxShadow: 4,
+                borderRadius: 3,
+                backgroundColor: "background.paper",
+            }}
+        >
+            <Tabs value={tabIndex} onChange={handleTabChange} centered variant="fullWidth">
+                <Tab label="Giriş Yap" sx={{ fontSize: { xs: "0.9rem", md: "1rem" } }} />
+                <Tab label="Kayıt Ol" sx={{ fontSize: { xs: "0.9rem", md: "1rem" } }} />
             </Tabs>
 
             {tabIndex === 0 && (
-                <Box sx={{ marginTop: 2 }}>
-                    <Typography variant="h6" gutterBottom>
+                <Box sx={{ marginTop: 3 }}>
+                    <Typography
+                        variant="h6"
+                        gutterBottom
+                        sx={{ fontWeight: 600, mb: 3, textAlign: "center" }}
+                    >
                         Giriş Yap
                     </Typography>
                     <TextField
@@ -76,6 +90,7 @@ const Auth: React.FC = () => {
                         margin="normal"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
+                        sx={{ mb: 2 }}
                     />
                     <TextField
                         fullWidth
@@ -84,16 +99,27 @@ const Auth: React.FC = () => {
                         margin="normal"
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
+                        sx={{ mb: 2 }}
                     />
-                    <Button variant="contained" color="primary" fullWidth onClick={handleLogin}>
+                    <Button
+                        variant="contained"
+                        color="primary"
+                        fullWidth
+                        onClick={handleLogin}
+                        sx={{ py: 1.5, borderRadius: 2, fontWeight: 600 }}
+                    >
                         Giriş Yap
                     </Button>
                 </Box>
             )}
 
             {tabIndex === 1 && (
-                <Box sx={{ marginTop: 2 }}>
-                    <Typography variant="h6" gutterBottom>
+                <Box sx={{ marginTop: 3 }}>
+                    <Typography
+                        variant="h6"
+                        gutterBottom
+                        sx={{ fontWeight: 600, mb: 3, textAlign: "center" }}
+                    >
                         Kayıt Ol
                     </Typography>
                     <TextField
@@ -102,6 +128,7 @@ const Auth: React.FC = () => {
                         margin="normal"
                         value={username}
                         onChange={(e) => setUsername(e.target.value)}
+                        sx={{ mb: 2 }}
                     />
                     <TextField
                         fullWidth
@@ -109,6 +136,7 @@ const Auth: React.FC = () => {
                         margin="normal"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
+                        sx={{ mb: 2 }}
                     />
                     <TextField
                         fullWidth
@@ -117,8 +145,15 @@ const Auth: React.FC = () => {
                         margin="normal"
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
+                        sx={{ mb: 2 }}
                     />
-                    <Button variant="contained" color="secondary" fullWidth onClick={handleRegister}>
+                    <Button
+                        variant="contained"
+                        color="primary"
+                        fullWidth
+                        onClick={handleRegister}
+                        sx={{ py: 1.5, borderRadius: 2, fontWeight: 600 }}
+                    >
                         Kayıt Ol
                     </Button>
                 </Box>

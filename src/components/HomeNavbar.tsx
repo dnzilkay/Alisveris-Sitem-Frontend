@@ -1,8 +1,24 @@
 import React, { useEffect, useState } from "react";
-import { Box, Typography, Toolbar, Menu, MenuItem, ListItemIcon } from "@mui/material";
-import { ChevronRight } from "lucide-react";
+import {
+    Box,
+    Typography,
+    Toolbar,
+    Menu,
+    MenuItem,
+    ListItemIcon,
+    useMediaQuery,
+    useTheme,
+    Drawer,
+    List,
+    ListItem,
+    ListItemButton,
+    ListItemText,
+    IconButton,
+} from "@mui/material";
+import { ChevronRight, Menu as MenuIcon, X } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { fetchCategories } from "../services/categoryService"; // Kategori servisinden import
+import { fetchCategories } from "../services/categoryService";
+import { useThemeContext } from "../context/ThemeContext";
 
 interface Category {
     id: number;
@@ -12,14 +28,17 @@ interface Category {
 const HomeNavbar: React.FC = () => {
     const [categoryAnchorEl, setCategoryAnchorEl] = useState<null | HTMLElement>(null);
     const [categories, setCategories] = useState<Category[]>([]);
+    const [mobileDrawerOpen, setMobileDrawerOpen] = useState(false);
     const navigate = useNavigate();
-    const darkMode = false; // Temaya göre değiştirilebilir
+    const { darkMode } = useThemeContext();
+    const theme = useTheme();
+    const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
     useEffect(() => {
         const getCategories = async () => {
             try {
                 const data = await fetchCategories();
-                setCategories(data); // Backend'den gelen kategoriler
+                setCategories(data);
             } catch (error) {
                 console.error("Kategoriler alınırken hata oluştu:", error);
             }
@@ -29,98 +48,264 @@ const HomeNavbar: React.FC = () => {
     }, []);
 
     const handleCategoryMouseEnter = (event: React.MouseEvent<HTMLElement>) => {
-        setCategoryAnchorEl(event.currentTarget);
+        if (!isMobile) {
+            setCategoryAnchorEl(event.currentTarget);
+        }
     };
 
     const handleCategoryMouseLeave = () => {
         setCategoryAnchorEl(null);
     };
 
+    const handleCategoryClick = (categoryId: number) => {
+        navigate(`/category/${categoryId}`);
+        setMobileDrawerOpen(false);
+    };
+
+    const handleNavigation = (path: string) => {
+        navigate(path);
+        setMobileDrawerOpen(false);
+    };
+
     return (
         <Box
             sx={{
                 position: "relative",
-                backgroundColor: darkMode ? "#222" : "#f9f9f9",
-                borderTop: "1px solid #ddd",
+                background: darkMode
+                    ? "linear-gradient(135deg, #1e293b 0%, #0f172a 100%)"
+                    : "linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%)",
+                borderTop: darkMode ? "1px solid rgba(255,255,255,0.1)" : "1px solid #dee2e6",
+                boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
             }}
         >
             <Toolbar
                 sx={{
                     justifyContent: "space-between",
-                    gap: 10,
-                    paddingX: 1,
+                    gap: { xs: 1, md: 4 },
+                    paddingX: { xs: 1, md: 3 },
+                    minHeight: { xs: "48px", md: "64px" },
+                    flexWrap: { xs: "wrap", md: "nowrap" },
                 }}
             >
-                <Box
-                    onMouseEnter={handleCategoryMouseEnter}
-                    onMouseLeave={handleCategoryMouseLeave}
-                >
-                    {/* Kategoriler */}
-                    <Typography
-                        sx={{
-                            fontWeight: "bold",
-                            cursor: "pointer",
-                            color: darkMode ? "#fff" : "#000",
-                            "&:hover": { color: "#1976D2" },
-                        }}
+                {/* Kategoriler - Desktop */}
+                {!isMobile && (
+                    <Box
+                        onMouseEnter={handleCategoryMouseEnter}
+                        onMouseLeave={handleCategoryMouseLeave}
+                        sx={{ position: "relative" }}
                     >
-                        Kategoriler
-                    </Typography>
+                        <Typography
+                            sx={{
+                                fontWeight: 600,
+                                cursor: "pointer",
+                                color: darkMode ? "#fff" : "#667eea",
+                                fontSize: "1rem",
+                                "&:hover": { color: darkMode ? "#a78bfa" : "#764ba2" },
+                                transition: "color 0.3s",
+                            }}
+                        >
+                            Kategoriler
+                        </Typography>
 
-                    {/* Açılır Menü */}
-                    <Menu
-                        anchorEl={categoryAnchorEl}
-                        open={Boolean(categoryAnchorEl)}
-                        onClose={handleCategoryMouseLeave}
+                        <Menu
+                            anchorEl={categoryAnchorEl}
+                            open={Boolean(categoryAnchorEl)}
+                            onClose={handleCategoryMouseLeave}
+                            PaperProps={{
+                                sx: {
+                                    backgroundColor: darkMode ? "#1e293b" : "#fff",
+                                    boxShadow: "0 8px 24px rgba(0,0,0,0.15)",
+                                    padding: 1,
+                                    minWidth: 220,
+                                    borderRadius: 2,
+                                    mt: 1,
+                                },
+                            }}
+                        >
+                            {categories.map((category) => (
+                                <MenuItem
+                                    key={category.id}
+                                    onClick={() => handleCategoryClick(category.id)}
+                                    sx={{
+                                        fontWeight: 500,
+                                        color: darkMode ? "#f1f5f9" : "#1e293b",
+                                        display: "flex",
+                                        alignItems: "center",
+                                        gap: 1,
+                                        borderRadius: 1,
+                                        "&:hover": {
+                                            backgroundColor: darkMode ? "rgba(139, 92, 246, 0.2)" : "rgba(102, 126, 234, 0.1)",
+                                        },
+                                    }}
+                                >
+                                    <ListItemIcon sx={{ minWidth: 0, color: darkMode ? "#a78bfa" : "#667eea" }}>
+                                        <ChevronRight size={18} />
+                                    </ListItemIcon>
+                                    {category.name}
+                                </MenuItem>
+                            ))}
+                        </Menu>
+                    </Box>
+                )}
+
+                {/* Mobil Menü Butonu */}
+                {isMobile && (
+                    <IconButton
+                        onClick={() => setMobileDrawerOpen(true)}
                         sx={{
-                            pointerEvents: "auto",
-                            transform: "scale(0.95)",
-                            transition: "transform 0.2s ease-in-out",
-                            transformOrigin: "top center",
-                        }}
-                        PaperProps={{
-                            sx: {
-                                backgroundColor: darkMode ? "#444" : "#fff",
-                                boxShadow: 3,
-                                padding: 1,
-                                minWidth: 200,
-                            },
+                            color: darkMode ? "#fff" : "#667eea",
+                            ml: "auto",
                         }}
                     >
-                        {categories.map((category) => (
-                            <MenuItem
-                                key={category.id}
-                                onClick={() => navigate(`/category/${category.id}`)} // ID ile yönlendirme
+                        <MenuIcon size={24} />
+                    </IconButton>
+                )}
+
+                {/* Diğer Sekmeler - Desktop */}
+                {!isMobile && (
+                    <Box sx={{ display: "flex", gap: { md: 3, lg: 4 }, flex: 1, justifyContent: "center" }}>
+                        <Typography
+                            sx={{
+                                cursor: "pointer",
+                                color: darkMode ? "#cbd5e1" : "#64748b",
+                                fontWeight: 500,
+                                fontSize: "0.95rem",
+                                "&:hover": { color: darkMode ? "#a78bfa" : "#667eea" },
+                                transition: "color 0.3s",
+                            }}
+                            onClick={() => navigate("/new-products")}
+                        >
+                            Yeni Ürünler
+                        </Typography>
+                        <Typography
+                            sx={{
+                                cursor: "pointer",
+                                color: darkMode ? "#cbd5e1" : "#64748b",
+                                fontWeight: 500,
+                                fontSize: "0.95rem",
+                                "&:hover": { color: darkMode ? "#a78bfa" : "#667eea" },
+                                transition: "color 0.3s",
+                            }}
+                            onClick={() => navigate("/discounts")}
+                        >
+                            İndirimler
+                        </Typography>
+                        <Typography
+                            sx={{
+                                cursor: "pointer",
+                                color: darkMode ? "#cbd5e1" : "#64748b",
+                                fontWeight: 500,
+                                fontSize: "0.95rem",
+                                "&:hover": { color: darkMode ? "#a78bfa" : "#667eea" },
+                                transition: "color 0.3s",
+                            }}
+                            onClick={() => navigate("/best-sellers")}
+                        >
+                            Çok Satanlar
+                        </Typography>
+                    </Box>
+                )}
+            </Toolbar>
+
+            {/* Mobil Drawer */}
+            <Drawer
+                anchor="right"
+                open={mobileDrawerOpen}
+                onClose={() => setMobileDrawerOpen(false)}
+                PaperProps={{
+                    sx: {
+                        width: 280,
+                        background: darkMode
+                            ? "linear-gradient(135deg, #1e293b 0%, #0f172a 100%)"
+                            : "linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%)",
+                        color: darkMode ? "#fff" : "#1e293b",
+                    },
+                }}
+            >
+                <Box sx={{ p: 2 }}>
+                    <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}>
+                        <Typography variant="h6" sx={{ color: darkMode ? "#fff" : "#1e293b", fontWeight: 600 }}>
+                            Menü
+                        </Typography>
+                        <IconButton onClick={() => setMobileDrawerOpen(false)}>
+                            <X size={24} color={darkMode ? "#fff" : "#1e293b"} />
+                        </IconButton>
+                    </Box>
+
+                    <List>
+                        <ListItem disablePadding>
+                            <ListItemButton
+                                onClick={() => setMobileDrawerOpen(false)}
                                 sx={{
-                                    fontWeight: "bold",
-                                    color: darkMode ? "#fff" : "#000",
-                                    display: "flex",
-                                    alignItems: "center",
-                                    gap: 1,
+                                    mb: 1,
+                                    borderRadius: 2,
+                                    backgroundColor: darkMode ? "rgba(139, 92, 246, 0.2)" : "rgba(102, 126, 234, 0.1)",
                                 }}
                             >
-                                <ListItemIcon sx={{ minWidth: 0, color: darkMode ? "#FFD700" : "#000" }}>
-                                    <ChevronRight />
-                                </ListItemIcon>
-                                {category.name}
-                            </MenuItem>
+                                <ListItemText
+                                    primary="Kategoriler"
+                                    primaryTypographyProps={{
+                                        fontWeight: 600,
+                                        color: darkMode ? "#a78bfa" : "#667eea",
+                                    }}
+                                />
+                            </ListItemButton>
+                        </ListItem>
+                        {categories.map((category) => (
+                            <ListItem key={category.id} disablePadding>
+                                <ListItemButton
+                                    onClick={() => handleCategoryClick(category.id)}
+                                    sx={{
+                                        pl: 4,
+                                        borderRadius: 1,
+                                        "&:hover": {
+                                            backgroundColor: darkMode ? "rgba(139, 92, 246, 0.1)" : "rgba(102, 126, 234, 0.05)",
+                                        },
+                                    }}
+                                >
+                                    <ListItemText
+                                        primary={category.name}
+                                        primaryTypographyProps={{
+                                            color: darkMode ? "#cbd5e1" : "#64748b",
+                                        }}
+                                    />
+                                </ListItemButton>
+                            </ListItem>
                         ))}
-                    </Menu>
+                        <Box sx={{ my: 2, borderTop: `1px solid ${darkMode ? "rgba(255,255,255,0.1)" : "#dee2e6"}` }} />
+                        <ListItem disablePadding>
+                            <ListItemButton onClick={() => handleNavigation("/new-products")}>
+                                <ListItemText
+                                    primary="Yeni Ürünler"
+                                    primaryTypographyProps={{
+                                        color: darkMode ? "#cbd5e1" : "#64748b",
+                                    }}
+                                />
+                            </ListItemButton>
+                        </ListItem>
+                        <ListItem disablePadding>
+                            <ListItemButton onClick={() => handleNavigation("/discounts")}>
+                                <ListItemText
+                                    primary="İndirimler"
+                                    primaryTypographyProps={{
+                                        color: darkMode ? "#cbd5e1" : "#64748b",
+                                    }}
+                                />
+                            </ListItemButton>
+                        </ListItem>
+                        <ListItem disablePadding>
+                            <ListItemButton onClick={() => handleNavigation("/best-sellers")}>
+                                <ListItemText
+                                    primary="Çok Satanlar"
+                                    primaryTypographyProps={{
+                                        color: darkMode ? "#cbd5e1" : "#64748b",
+                                    }}
+                                />
+                            </ListItemButton>
+                        </ListItem>
+                    </List>
                 </Box>
-
-                {/* Diğer Sekmeler */}
-                <Box sx={{ display: "flex", gap: 2 }}>
-                    <Typography sx={{ cursor: "pointer" }} onClick={() => navigate("/new-products")}>
-                        Yeni Ürünler
-                    </Typography>
-                    <Typography sx={{ cursor: "pointer" }} onClick={() => navigate("/discounts")}>
-                        İndirimler
-                    </Typography>
-                    <Typography sx={{ cursor: "pointer" }} onClick={() => navigate("/best-sellers")}>
-                        Çok Satanlar
-                    </Typography>
-                </Box>
-            </Toolbar>
+            </Drawer>
         </Box>
     );
 };

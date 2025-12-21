@@ -8,6 +8,8 @@ import {
     CardMedia,
     Button,
     IconButton,
+    useMediaQuery,
+    useTheme,
 } from "@mui/material";
 import { Heart, ShoppingCart, ChevronLeft, ChevronRight } from "lucide-react";
 import { useNavigate } from "react-router-dom";
@@ -43,6 +45,8 @@ const Home: React.FC = () => {
     const [products, setProducts] = useState<any[]>([]);
     const [visibleProducts, setVisibleProducts] = useState<any[]>([]);
     const [hasMore, setHasMore] = useState(true);
+    const theme = useTheme();
+    const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
     // Backend'den ürünleri çek
     useEffect(() => {
@@ -91,12 +95,18 @@ const Home: React.FC = () => {
     };
 
     return (
-        <Box sx={{ backgroundColor: "#f9f9f9", minHeight: "100vh" }}>
+        <Box sx={{ backgroundColor: "background.default", minHeight: "100vh" }}>
             {/* Alt Navbar */}
             <HomeNavbar />
 
             {/* Carousel */}
-            <Box sx={{ position: "relative", height: "400px", overflow: "hidden" }}>
+            <Box
+                sx={{
+                    position: "relative",
+                    height: { xs: "250px", sm: "300px", md: "400px" },
+                    overflow: "hidden",
+                }}
+            >
                 {slides.map((slide, index) => (
                     <Box
                         key={index}
@@ -112,78 +122,141 @@ const Home: React.FC = () => {
                     >
                         <Box
                             sx={{
-                                backgroundColor: "rgba(0,0,0,0.4)",
+                                backgroundColor: "rgba(0,0,0,0.5)",
                                 height: "100%",
                                 display: "flex",
                                 flexDirection: "column",
                                 justifyContent: "center",
                                 alignItems: "center",
                                 color: "white",
+                                textAlign: "center",
+                                px: { xs: 2, md: 4 },
                             }}
                         >
-                            <Typography variant="h3" fontWeight="bold" mb={2}>
+                            <Typography
+                                variant="h3"
+                                fontWeight="bold"
+                                mb={2}
+                                sx={{ fontSize: { xs: "1.5rem", sm: "2rem", md: "2.5rem" } }}
+                            >
                                 {slide.title}
                             </Typography>
-                            <Typography variant="h6">{slide.description}</Typography>
+                            <Typography
+                                variant="h6"
+                                sx={{ fontSize: { xs: "0.9rem", sm: "1rem", md: "1.25rem" } }}
+                            >
+                                {slide.description}
+                            </Typography>
                         </Box>
                     </Box>
                 ))}
-                <Button
+                <IconButton
                     onClick={prevSlide}
-                    sx={{ position: "absolute", left: 16, top: "50%", transform: "translateY(-50%)", color: "white" }}
+                    sx={{
+                        position: "absolute",
+                        left: { xs: 8, md: 16 },
+                        top: "50%",
+                        transform: "translateY(-50%)",
+                        color: "white",
+                        backgroundColor: "rgba(0,0,0,0.3)",
+                        "&:hover": { backgroundColor: "rgba(0,0,0,0.5)" },
+                    }}
                 >
-                    <ChevronLeft size={32} />
-                </Button>
-                <Button
+                    <ChevronLeft size={isMobile ? 24 : 32} />
+                </IconButton>
+                <IconButton
                     onClick={nextSlide}
-                    sx={{ position: "absolute", right: 16, top: "50%", transform: "translateY(-50%)", color: "white" }}
+                    sx={{
+                        position: "absolute",
+                        right: { xs: 8, md: 16 },
+                        top: "50%",
+                        transform: "translateY(-50%)",
+                        color: "white",
+                        backgroundColor: "rgba(0,0,0,0.3)",
+                        "&:hover": { backgroundColor: "rgba(0,0,0,0.5)" },
+                    }}
                 >
-                    <ChevronRight size={32} />
-                </Button>
+                    <ChevronRight size={isMobile ? 24 : 32} />
+                </IconButton>
             </Box>
 
             {/* Ürün Listesi */}
-            <Box sx={{ padding: 3 }}>
-                <Typography variant="h5" sx={{ marginBottom: 3, textAlign: "center" }}>
+            <Box sx={{ padding: { xs: 2, sm: 3, md: 4 } }}>
+                <Typography
+                    variant="h5"
+                    sx={{
+                        marginBottom: 3,
+                        textAlign: "center",
+                        fontWeight: 700,
+                        color: "primary.main",
+                        fontSize: { xs: "1.5rem", md: "2rem" },
+                    }}
+                >
                     Öne Çıkan Ürünler
                 </Typography>
                 <InfiniteScroll
                     dataLength={visibleProducts.length}
                     next={loadMoreProducts}
                     hasMore={hasMore}
-                    loader={<Typography>Yükleniyor...</Typography>}
+                    loader={
+                        <Typography sx={{ textAlign: "center", py: 2, color: "text.secondary" }}>
+                            Yükleniyor...
+                        </Typography>
+                    }
                 >
-                    <Grid container spacing={3}>
+                    <Grid container spacing={{ xs: 2, sm: 3, md: 3 }}>
                         {visibleProducts.map((product) => (
-                            <Grid item xs={12} sm={6} md={4} key={product.id}>
+                            <Grid item xs={12} sm={6} md={4} lg={3} key={product.id}>
                                 <Card
                                     sx={{
                                         boxShadow: 3,
                                         position: "relative",
                                         cursor: "pointer",
-                                        transition: "transform 0.3s",
-                                        "&:hover": { boxShadow: 6, transform: "translateY(-5px)" },
+                                        transition: "all 0.3s ease",
+                                        borderRadius: 3,
+                                        overflow: "hidden",
+                                        height: "100%",
+                                        display: "flex",
+                                        flexDirection: "column",
+                                        "&:hover": {
+                                            boxShadow: 8,
+                                            transform: "translateY(-8px)",
+                                        },
                                     }}
                                     onClick={() => navigate(`/product/${product.id}`)}
                                 >
                                     <CardMedia
                                         component="img"
-                                        height="200"
+                                        sx={{
+                                            height: { xs: 180, sm: 200, md: 220 },
+                                            objectFit: "cover",
+                                        }}
                                         image={
                                             product.images && product.images.length > 0
                                                 ? Array.isArray(product.images) && typeof product.images[0] === "string"
-                                                    ? product.images[0] // Eğer `images[0]` bir `string` ise, direkt kullan
-                                                    : product.images[0].url // Eğer `images[0]` bir `object` ise, `.url` özelliğini kullan
-                                                : "https://via.placeholder.com/200" // Varsayılan resim
+                                                    ? product.images[0]
+                                                    : product.images[0].url
+                                                : "https://via.placeholder.com/200"
                                         }
                                         alt={product.name}
                                     />
 
-                                    <CardContent>
-                                        <Typography variant="subtitle2" color="textSecondary">
+                                    <CardContent sx={{ flexGrow: 1, display: "flex", flexDirection: "column" }}>
+                                        <Typography variant="subtitle2" color="text.secondary" sx={{ mb: 0.5 }}>
                                             {product.category}
                                         </Typography>
-                                        <Typography variant="h6" noWrap>
+                                        <Typography
+                                            variant="h6"
+                                            sx={{
+                                                mb: 1,
+                                                fontWeight: 600,
+                                                overflow: "hidden",
+                                                textOverflow: "ellipsis",
+                                                display: "-webkit-box",
+                                                WebkitLineClamp: 2,
+                                                WebkitBoxOrient: "vertical",
+                                            }}
+                                        >
                                             {product.name}
                                         </Typography>
                                         <Box
@@ -191,9 +264,11 @@ const Home: React.FC = () => {
                                                 display: "flex",
                                                 justifyContent: "space-between",
                                                 alignItems: "center",
+                                                mt: "auto",
+                                                pt: 2,
                                             }}
                                         >
-                                            <Typography variant="h6" color="primary">
+                                            <Typography variant="h6" color="primary" fontWeight={700}>
                                                 {product.price.toLocaleString("tr-TR", {
                                                     style: "currency",
                                                     currency: "TRY",
@@ -202,6 +277,7 @@ const Home: React.FC = () => {
                                             <Button
                                                 variant="contained"
                                                 color="primary"
+                                                size="small"
                                                 onClick={(e) => {
                                                     e.stopPropagation();
                                                     addToCart({
@@ -212,6 +288,10 @@ const Home: React.FC = () => {
                                                         quantity: 1,
                                                     });
                                                 }}
+                                                sx={{
+                                                    minWidth: "auto",
+                                                    px: 1.5,
+                                                }}
                                             >
                                                 <ShoppingCart size={18} />
                                             </Button>
@@ -220,22 +300,25 @@ const Home: React.FC = () => {
                                     <Box
                                         sx={{
                                             position: "absolute",
-                                            top: 9,
-                                            right: 9,
-                                            backgroundColor: "white",
+                                            top: 12,
+                                            right: 12,
+                                            backgroundColor: "background.paper",
                                             borderRadius: "50%",
-                                            boxShadow: 1,
+                                            boxShadow: 2,
+                                            zIndex: 1,
                                         }}
                                     >
                                         <IconButton
+                                            size="small"
                                             onClick={(e) => {
                                                 e.stopPropagation();
                                                 toggleFavorite(product.id);
                                             }}
                                         >
                                             <Heart
-                                                size={25}
+                                                size={20}
                                                 color={favorites.includes(product.id) ? "red" : "gray"}
+                                                fill={favorites.includes(product.id) ? "red" : "none"}
                                             />
                                         </IconButton>
                                     </Box>

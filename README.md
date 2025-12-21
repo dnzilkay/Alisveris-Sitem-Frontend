@@ -28,7 +28,7 @@ Gerekli bağımlılıkları yükleyin:
 npm install  # veya yarn install
 ```
 
-## 🎮 Kullanım
+##  Kullanım
 Geliştirme ortamında çalıştırmadan önce `.env` dosyanızın doğru yapılandırıldığından emin olun.
 Geliştirme ortamında çalıştırmak için:
 ```bash

@@ -56,11 +56,29 @@ const Profile: React.FC = () => {
     }
 
     return (
-        <Box sx={{ padding: 4, maxWidth: 500, margin: "auto", boxShadow: 3, borderRadius: 2 }}>
-            <Typography variant="h4" gutterBottom>
+        <Box
+            sx={{
+                padding: { xs: 3, md: 4 },
+                maxWidth: { xs: "90%", sm: 500 },
+                margin: "auto",
+                boxShadow: 4,
+                borderRadius: 3,
+                backgroundColor: "background.paper",
+                mt: { xs: 2, md: 4 },
+            }}
+        >
+            <Typography
+                variant="h4"
+                gutterBottom
+                sx={{
+                    fontWeight: 700,
+                    fontSize: { xs: "1.75rem", md: "2.5rem" },
+                    color: "primary.main",
+                }}
+            >
                 Profil Bilgileri
             </Typography>
-            <Divider sx={{ marginBottom: 2 }} />
+            <Divider sx={{ marginBottom: 3 }} />
 
             {/* Kullanıcı Adı */}
             <TextField
@@ -103,10 +121,16 @@ const Profile: React.FC = () => {
             {/* Çıkış Yap Butonu */}
             <Button
                 variant="contained"
-                color="error" // Kırmızı renk için "error" kullanıyoruz
+                color="error"
                 fullWidth
                 onClick={handleLogout}
-                sx={{ marginTop: 2 }}
+                sx={{
+                    marginTop: 3,
+                    py: 1.5,
+                    borderRadius: 2,
+                    fontWeight: 600,
+                    fontSize: "1rem",
+                }}
             >
                 Çıkış Yap
             </Button>

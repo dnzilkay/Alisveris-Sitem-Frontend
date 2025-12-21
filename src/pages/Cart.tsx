@@ -22,12 +22,14 @@ import RemoveIcon from "@mui/icons-material/Remove";
 import { useCart } from "../context/CartContext";
 import { useAuth } from "../context/AuthContext";
 import { addOrder } from "../services/orderService";
+import { useNavigate } from "react-router-dom";
 
 const useBackend = import.meta.env.VITE_USE_BACKEND === "true";
 
 const Cart: React.FC = () => {
     const { cart, increaseQuantity, decreaseQuantity, removeItem, clearCart, completeOrder } = useCart();
     const { user } = useAuth();
+    const navigate = useNavigate();
     const [address, setAddress] = useState("");
     const [paymentType, setPaymentType] = useState("Kart");
     const [snackbarOpen, setSnackbarOpen] = useState(false);
@@ -98,80 +100,234 @@ const Cart: React.FC = () => {
     };
 
     return (
-        <Box sx={{ padding: 4 }}>
-            <Typography variant="h4" gutterBottom>Sepetim</Typography>
-            <Divider sx={{ marginBottom: 2 }} />
+        <Box sx={{ padding: { xs: 2, sm: 3, md: 4 }, maxWidth: "1200px", margin: "0 auto" }}>
+            <Typography
+                variant="h4"
+                gutterBottom
+                sx={{
+                    fontWeight: 700,
+                    mb: 3,
+                    fontSize: { xs: "1.75rem", md: "2.5rem" },
+                    color: "primary.main",
+                }}
+            >
+                Sepetim
+            </Typography>
+            <Divider sx={{ marginBottom: 3 }} />
 
             {cart.length > 0 ? (
-                cart.map((item) => (
-                    <Card key={item.id} sx={{ display: "flex", marginBottom: 2, boxShadow: 3 }}>
-                        <CardMedia
-                            component="img"
-                            image={item.image}
-                            alt={item.name}
-                            sx={{ width: 120, objectFit: "contain" }}
-                        />
-                        <CardContent sx={{ flex: 1 }}>
-                            <Typography variant="h6">{item.name}</Typography>
-                            <Typography>Fiyat: {item.price.toLocaleString()} TL</Typography>
-                            <Box sx={{ display: "flex", alignItems: "center", marginTop: 1 }}>
-                                <IconButton onClick={() => decreaseQuantity(item.id)}>
-                                    <RemoveIcon />
-                                </IconButton>
-                                <Typography>{item.quantity}</Typography>
-                                <IconButton onClick={() => increaseQuantity(item.id)}>
-                                    <AddIcon />
-                                </IconButton>
-                                <Button
-                                    startIcon={<DeleteIcon />}
-                                    color="error"
-                                    sx={{ marginLeft: "auto" }}
-                                    onClick={() => removeItem(item.id)}
-                                >
-                                    Kaldır
-                                </Button>
-                            </Box>
-                        </CardContent>
-                    </Card>
-                ))
-            ) : (
-                <Typography>Sepetiniz boş.</Typography>
-            )}
-
-            {cart.length > 0 && (
-                <Box sx={{ marginTop: 4 }}>
-                    <TextField
-                        fullWidth
-                        label="Teslimat Adresi"
-                        value={address}
-                        onChange={(e) => setAddress(e.target.value)}
-                        sx={{ marginBottom: 2 }}
-                    />
-                    <FormControl fullWidth sx={{ marginBottom: 2 }}>
-                        <InputLabel>Ödeme Türü</InputLabel>
-                        <Select
-                            value={paymentType}
-                            onChange={(e) => setPaymentType(e.target.value)}
+                <>
+                    {cart.map((item) => (
+                        <Card
+                            key={item.id}
+                            sx={{
+                                display: "flex",
+                                flexDirection: { xs: "column", sm: "row" },
+                                marginBottom: 2,
+                                boxShadow: 3,
+                                borderRadius: 3,
+                                overflow: "hidden",
+                            }}
                         >
-                            <MenuItem value="Kart">Kart</MenuItem>
-                            <MenuItem value="Kapıda Ödeme">Kapıda Ödeme</MenuItem>
-                        </Select>
-                    </FormControl>
+                            <CardMedia
+                                component="img"
+                                image={item.image}
+                                alt={item.name}
+                                sx={{
+                                    width: { xs: "100%", sm: 150 },
+                                    height: { xs: 200, sm: 150 },
+                                    objectFit: "cover",
+                                }}
+                            />
+                            <CardContent
+                                sx={{
+                                    flex: 1,
+                                    display: "flex",
+                                    flexDirection: "column",
+                                    justifyContent: "space-between",
+                                    p: { xs: 2, sm: 3 },
+                                }}
+                            >
+                                <Box>
+                                    <Typography
+                                        variant="h6"
+                                        sx={{
+                                            fontWeight: 600,
+                                            mb: 1,
+                                            fontSize: { xs: "1rem", sm: "1.25rem" },
+                                        }}
+                                    >
+                                        {item.name}
+                                    </Typography>
+                                    <Typography
+                                        variant="h6"
+                                        color="primary"
+                                        sx={{ fontWeight: 700, mb: 2 }}
+                                    >
+                                        {typeof item.price === "number"
+                                            ? item.price.toLocaleString("tr-TR", {
+                                                  style: "currency",
+                                                  currency: "TRY",
+                                              })
+                                            : `${item.price} TL`}
+                                    </Typography>
+                                </Box>
+                                <Box
+                                    sx={{
+                                        display: "flex",
+                                        alignItems: "center",
+                                        justifyContent: "space-between",
+                                        flexWrap: "wrap",
+                                        gap: 1,
+                                    }}
+                                >
+                                    <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                                        <IconButton
+                                            onClick={() => decreaseQuantity(item.id)}
+                                            sx={{
+                                                backgroundColor: "action.hover",
+                                                "&:hover": { backgroundColor: "action.selected" },
+                                            }}
+                                        >
+                                            <RemoveIcon />
+                                        </IconButton>
+                                        <Typography
+                                            sx={{
+                                                minWidth: "30px",
+                                                textAlign: "center",
+                                                fontWeight: 600,
+                                            }}
+                                        >
+                                            {item.quantity}
+                                        </Typography>
+                                        <IconButton
+                                            onClick={() => increaseQuantity(item.id)}
+                                            sx={{
+                                                backgroundColor: "action.hover",
+                                                "&:hover": { backgroundColor: "action.selected" },
+                                            }}
+                                        >
+                                            <AddIcon />
+                                        </IconButton>
+                                    </Box>
+                                    <Button
+                                        startIcon={<DeleteIcon />}
+                                        color="error"
+                                        variant="outlined"
+                                        size="small"
+                                        onClick={() => removeItem(item.id)}
+                                        sx={{ borderRadius: 2 }}
+                                    >
+                                        Kaldır
+                                    </Button>
+                                </Box>
+                            </CardContent>
+                        </Card>
+                    ))}
+
+                    <Box
+                        sx={{
+                            marginTop: 4,
+                            backgroundColor: "background.paper",
+                            p: 3,
+                            borderRadius: 3,
+                            boxShadow: 2,
+                        }}
+                    >
+                        <TextField
+                            fullWidth
+                            label="Teslimat Adresi"
+                            value={address}
+                            onChange={(e) => setAddress(e.target.value)}
+                            multiline
+                            rows={3}
+                            sx={{ marginBottom: 2 }}
+                        />
+                        <FormControl fullWidth sx={{ marginBottom: 2 }}>
+                            <InputLabel>Ödeme Türü</InputLabel>
+                            <Select value={paymentType} onChange={(e) => setPaymentType(e.target.value)}>
+                                <MenuItem value="Kart">Kredi/Banka Kartı</MenuItem>
+                                <MenuItem value="Kapıda Ödeme">Kapıda Ödeme</MenuItem>
+                            </Select>
+                        </FormControl>
+                    </Box>
+                </>
+            ) : (
+                <Box
+                    sx={{
+                        textAlign: "center",
+                        py: 8,
+                        backgroundColor: "background.paper",
+                        borderRadius: 3,
+                        boxShadow: 2,
+                    }}
+                >
+                    <Typography variant="h6" color="text.secondary" sx={{ mb: 2 }}>
+                        Sepetiniz boş
+                    </Typography>
+                    <Button
+                        variant="contained"
+                        color="primary"
+                        onClick={() => navigate("/")}
+                        sx={{ borderRadius: 2, px: 4 }}
+                    >
+                        Alışverişe Başla
+                    </Button>
                 </Box>
             )}
 
-            <Box sx={{ textAlign: "right", marginTop: 3 }}>
-                <Typography variant="h6">Toplam Tutar: {totalPrice.toLocaleString()} TL</Typography>
-                <Button
-                    variant="contained"
-                    color="primary"
-                    sx={{ marginTop: 1 }}
-                    onClick={handleOrderSubmit}
-                    disabled={cart.length === 0}
+            {cart.length > 0 && (
+                <Box
+                    sx={{
+                        marginTop: 3,
+                        padding: 3,
+                        backgroundColor: "primary.main",
+                        color: "white",
+                        borderRadius: 3,
+                        boxShadow: 4,
+                    }}
                 >
-                    Siparişi Tamamla
-                </Button>
-            </Box>
+                    <Box
+                        sx={{
+                            display: "flex",
+                            justifyContent: "space-between",
+                            alignItems: "center",
+                            flexWrap: "wrap",
+                            gap: 2,
+                            mb: 2,
+                        }}
+                    >
+                        <Typography variant="h6" sx={{ fontWeight: 600 }}>
+                            Toplam Tutar:
+                        </Typography>
+                        <Typography variant="h5" sx={{ fontWeight: 700 }}>
+                            {totalPrice.toLocaleString("tr-TR", {
+                                style: "currency",
+                                currency: "TRY",
+                            })}
+                        </Typography>
+                    </Box>
+                    <Button
+                        variant="contained"
+                        fullWidth
+                        sx={{
+                            backgroundColor: "white",
+                            color: "primary.main",
+                            py: 1.5,
+                            fontSize: "1.1rem",
+                            fontWeight: 600,
+                            borderRadius: 2,
+                            "&:hover": {
+                                backgroundColor: "grey.100",
+                            },
+                        }}
+                        onClick={handleOrderSubmit}
+                        disabled={cart.length === 0}
+                    >
+                        Siparişi Tamamla
+                    </Button>
+                </Box>
+            )}
 
             <Snackbar
                 open={snackbarOpen}

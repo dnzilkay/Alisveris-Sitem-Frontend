@@ -15,6 +15,8 @@ import {
     Rating,
     Avatar,
     CircularProgress,
+    useMediaQuery,
+    useTheme,
 } from "@mui/material";
 import { fetchProductById, fetchProducts } from "../services/productService";
 import { useCart } from "../context/CartContext";
@@ -40,6 +42,8 @@ const ProductDetail: React.FC = () => {
     const [rating, setRating] = useState<number | null>(null);
     const { addToCart } = useCart();
     const navigate = useNavigate();
+    const theme = useTheme();
+    const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
     const [loading, setLoading] = useState(true); // Yükleme durumu
     const [error, setError] = useState<string | null>(null); // Hata durumu
@@ -130,43 +134,104 @@ const ProductDetail: React.FC = () => {
     }
 
     return (
-        <Box sx={{ padding: 4 }}>
+        <Box sx={{ padding: { xs: 2, sm: 3, md: 4 } }}>
             {/* Ürün Detayları */}
-            <Box sx={{ display: "flex", gap: 4, marginBottom: 4 }}>
+            <Box
+                sx={{
+                    display: "flex",
+                    flexDirection: { xs: "column", md: "row" },
+                    gap: { xs: 2, md: 4 },
+                    marginBottom: 4,
+                }}
+            >
                 <CardMedia
                     component="img"
                     image={
                         item.images && item.images.length > 0
                             ? Array.isArray(item.images) && typeof item.images[0] === "string"
-                                ? item.images[0] // Eğer `images[0]` bir `string` ise, direkt kullan
-                                : item.images[0].url // Eğer `images[0]` bir `object` ise, `.url` özelliğini kullan
-                            : "https://via.placeholder.com/200" // Varsayılan resim
+                                ? item.images[0]
+                                : item.images[0].url
+                            : "https://via.placeholder.com/200"
                     }
                     alt={item.name}
-                    sx={{ width: "300px", borderRadius: 2 }}
+                    sx={{
+                        width: { xs: "100%", md: "400px" },
+                        maxWidth: { xs: "100%", md: "400px" },
+                        borderRadius: 3,
+                        objectFit: "cover",
+                        boxShadow: 4,
+                    }}
                 />
-                <Box>
-                    <Typography variant="h4">{item.name}</Typography>
-                    <Typography paragraph>Stok: {item.stock}</Typography>
-                    <Typography paragraph>{item.description}</Typography>
-                    <Typography variant="h5" color="primary">{item.price} TL</Typography>
-                    <Typography sx={{ marginTop: 1 }}>
-                        Ortalama Puan: <Rating value={averageRating} readOnly /> ({averageRating.toFixed(1)})
+                <Box sx={{ flex: 1 }}>
+                    <Typography
+                        variant="h4"
+                        sx={{
+                            fontSize: { xs: "1.5rem", sm: "2rem", md: "2.5rem" },
+                            fontWeight: 700,
+                            mb: 2,
+                        }}
+                    >
+                        {item.name}
                     </Typography>
-                    <Typography>Satın Alınma Sayısı: {getStoredSalesCount()}</Typography>
+                    <Typography paragraph sx={{ color: "text.secondary", mb: 1 }}>
+                        Stok: {item.stock} adet
+                    </Typography>
+                    <Typography
+                        paragraph
+                        sx={{
+                            color: "text.secondary",
+                            mb: 2,
+                            fontSize: { xs: "0.9rem", md: "1rem" },
+                        }}
+                    >
+                        {item.description}
+                    </Typography>
+                    <Typography
+                        variant="h5"
+                        color="primary"
+                        sx={{
+                            fontWeight: 700,
+                            mb: 2,
+                            fontSize: { xs: "1.5rem", md: "2rem" },
+                        }}
+                    >
+                        {item.price.toLocaleString("tr-TR", {
+                            style: "currency",
+                            currency: "TRY",
+                        })}
+                    </Typography>
+                    <Box sx={{ mb: 2, display: "flex", alignItems: "center", gap: 1, flexWrap: "wrap" }}>
+                        <Typography sx={{ mr: 1 }}>Ortalama Puan:</Typography>
+                        <Rating value={averageRating} readOnly size="small" />
+                        <Typography variant="body2" color="text.secondary">
+                            ({averageRating.toFixed(1)})
+                        </Typography>
+                    </Box>
+                    <Typography sx={{ mb: 2, color: "text.secondary" }}>
+                        Satın Alınma Sayısı: {getStoredSalesCount()}
+                    </Typography>
                     <Button
                         variant="contained"
-                        color="secondary"
+                        color="primary"
+                        size="large"
+                        fullWidth={false}
                         onClick={() =>
                             addToCart({
                                 id: item.id,
                                 name: item.name,
-                                image: item.images[0]?.url || "https://via.placeholder.com/200", // İlk resmi kullan veya varsayılan
+                                image: item.images[0]?.url || "https://via.placeholder.com/200",
                                 price: item.price,
                                 quantity: 1,
                             })
                         }
-                        sx={{ marginTop: 2 }}
+                        sx={{
+                            marginTop: 2,
+                            px: 4,
+                            py: 1.5,
+                            fontSize: "1rem",
+                            fontWeight: 600,
+                            borderRadius: 2,
+                        }}
                     >
                         Sepete Ekle
                     </Button>
@@ -177,60 +242,114 @@ const ProductDetail: React.FC = () => {
 
             {/* Sekmeler */}
             <Box sx={{ marginTop: 4 }}>
-                <Tabs value={tabIndex} onChange={handleTabChange} centered>
+                <Tabs
+                    value={tabIndex}
+                    onChange={handleTabChange}
+                    variant={isMobile ? "scrollable" : "standard"}
+                    scrollButtons="auto"
+                    sx={{
+                        borderBottom: 1,
+                        borderColor: "divider",
+                        mb: 3,
+                    }}
+                >
                     <Tab label="Ürün Bilgileri" />
                     <Tab label="Açıklamalar" />
                     <Tab label="Yorumlar" />
                 </Tabs>
 
-                <Box sx={{ padding: 3 }}>
-                    {tabIndex === 0 && <Typography>Bu ürün yüksek performanslı bir donanıma sahiptir.</Typography>}
-                    {tabIndex === 1 && <Typography>Detaylı açıklamalar burada yer alır.</Typography>}
+                <Box sx={{ padding: { xs: 2, md: 3 } }}>
+                    {tabIndex === 0 && (
+                        <Typography sx={{ color: "text.secondary", lineHeight: 1.8 }}>
+                            Bu ürün yüksek performanslı bir donanıma sahiptir. Modern teknoloji ile üretilmiş olup,
+                            uzun ömürlü kullanım için tasarlanmıştır.
+                        </Typography>
+                    )}
+                    {tabIndex === 1 && (
+                        <Typography sx={{ color: "text.secondary", lineHeight: 1.8 }}>
+                            Detaylı açıklamalar burada yer alır. Ürünün teknik özellikleri, kullanım alanları ve
+                            avantajları hakkında kapsamlı bilgiler.
+                        </Typography>
+                    )}
                     {tabIndex === 2 && (
-                        <Box sx={{ marginTop: 4 }}>
-                            <Typography variant="h6" gutterBottom>Yorumlar ve Değerlendirmeler</Typography>
-                            <Rating
-                                name="rating"
-                                value={rating}
-                                onChange={(_, newValue) => setRating(newValue)}
-                                sx={{ marginBottom: 2 }}
-                            />
-                            <TextField
-                                label="Yorumunuzu Yazın"
-                                variant="outlined"
-                                fullWidth
-                                multiline
-                                rows={3}
-                                value={review}
-                                onChange={(e) => setReview(e.target.value)}
-                                sx={{ marginBottom: 2 }}
-                            />
-                            <Button variant="contained" onClick={handleAddReview}>
-                                Yorum Ekle
-                            </Button>
+                        <Box sx={{ marginTop: { xs: 2, md: 4 } }}>
+                            <Typography variant="h6" gutterBottom sx={{ fontWeight: 600, mb: 3 }}>
+                                Yorumlar ve Değerlendirmeler
+                            </Typography>
+                            <Box
+                                sx={{
+                                    backgroundColor: "background.paper",
+                                    p: 3,
+                                    borderRadius: 2,
+                                    mb: 3,
+                                    boxShadow: 2,
+                                }}
+                            >
+                                <Rating
+                                    name="rating"
+                                    value={rating}
+                                    onChange={(_, newValue) => setRating(newValue)}
+                                    sx={{ marginBottom: 2 }}
+                                    size="large"
+                                />
+                                <TextField
+                                    label="Yorumunuzu Yazın"
+                                    variant="outlined"
+                                    fullWidth
+                                    multiline
+                                    rows={4}
+                                    value={review}
+                                    onChange={(e) => setReview(e.target.value)}
+                                    sx={{ marginBottom: 2 }}
+                                />
+                                <Button
+                                    variant="contained"
+                                    color="primary"
+                                    onClick={handleAddReview}
+                                    disabled={!review.trim() || rating === null}
+                                    sx={{ px: 3 }}
+                                >
+                                    Yorum Ekle
+                                </Button>
+                            </Box>
 
                             {/* Yorum Listesi */}
                             <Box sx={{ marginTop: 3 }}>
                                 {reviews.length > 0 ? (
                                     reviews.map((item, index) => (
-                                        <Card key={index} sx={{ marginBottom: 2, padding: 2, display: "flex", alignItems: "flex-start", gap: 2 }}>
-                                            <Avatar>{`K${index + 1}`}</Avatar>
-                                            <Box>
-                                                <Typography variant="body1" sx={{ fontWeight: "bold" }}>
+                                        <Card
+                                            key={index}
+                                            sx={{
+                                                marginBottom: 2,
+                                                padding: 2,
+                                                display: "flex",
+                                                alignItems: "flex-start",
+                                                gap: 2,
+                                                borderRadius: 2,
+                                                boxShadow: 2,
+                                            }}
+                                        >
+                                            <Avatar sx={{ bgcolor: "primary.main" }}>{`K${index + 1}`}</Avatar>
+                                            <Box sx={{ flex: 1 }}>
+                                                <Typography variant="body1" sx={{ fontWeight: 600, mb: 0.5 }}>
                                                     Kullanıcı {index + 1}
                                                 </Typography>
-                                                <Typography variant="body2" color="textSecondary">
+                                                <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1 }}>
                                                     <Rating value={item.rating} readOnly size="small" />
-                                                    {new Date().toLocaleDateString()}
-                                                </Typography>
-                                                <Typography variant="body1" sx={{ marginTop: 1 }}>
+                                                    <Typography variant="body2" color="text.secondary">
+                                                        {new Date().toLocaleDateString("tr-TR")}
+                                                    </Typography>
+                                                </Box>
+                                                <Typography variant="body1" sx={{ color: "text.primary" }}>
                                                     {item.text}
                                                 </Typography>
                                             </Box>
                                         </Card>
                                     ))
                                 ) : (
-                                    <Typography>Henüz yorum yapılmamış.</Typography>
+                                    <Typography sx={{ textAlign: "center", color: "text.secondary", py: 4 }}>
+                                        Henüz yorum yapılmamış. İlk yorumu siz yapın!
+                                    </Typography>
                                 )}
                             </Box>
                         </Box>
@@ -241,33 +360,83 @@ const ProductDetail: React.FC = () => {
             <Divider sx={{ marginY: 4 }} />
 
             {/* Benzer Ürünler */}
-            <Box>
-                <Typography variant="h5" gutterBottom>Benzer Ürünler</Typography>
-                <Grid container spacing={3}>
+            <Box sx={{ mt: 4 }}>
+                <Typography
+                    variant="h5"
+                    gutterBottom
+                    sx={{
+                        fontWeight: 700,
+                        mb: 3,
+                        fontSize: { xs: "1.5rem", md: "2rem" },
+                    }}
+                >
+                    Benzer Ürünler
+                </Typography>
+                <Grid container spacing={{ xs: 2, sm: 3, md: 3 }}>
                     {similarProducts.map((item) => (
                         <Grid item xs={12} sm={6} md={4} key={item.id}>
-                            <Card sx={{ maxWidth: 250, margin: "auto", boxShadow: 3 }}>
+                            <Card
+                                sx={{
+                                    maxWidth: { xs: "100%", sm: 300 },
+                                    margin: "auto",
+                                    boxShadow: 3,
+                                    borderRadius: 3,
+                                    cursor: "pointer",
+                                    transition: "all 0.3s ease",
+                                    "&:hover": {
+                                        boxShadow: 8,
+                                        transform: "translateY(-4px)",
+                                    },
+                                }}
+                                onClick={() => navigate(`/product/${item.id}`)}
+                            >
                                 <CardMedia
                                     component="img"
-                                    height="140"
+                                    sx={{
+                                        height: { xs: 180, sm: 200 },
+                                        objectFit: "cover",
+                                    }}
                                     image={
                                         item.images && item.images.length > 0
                                             ? Array.isArray(item.images) && typeof item.images[0] === "string"
-                                                ? item.images[0] // Eğer `images[0]` bir `string` ise, direkt kullan
-                                                : item.images[0].url // Eğer `images[0]` bir `object` ise, `.url` özelliğini kullan
-                                            : "https://via.placeholder.com/200" // Varsayılan resim
+                                                ? item.images[0]
+                                                : item.images[0].url
+                                            : "https://via.placeholder.com/200"
                                     }
                                     alt={item.name}
                                 />
                                 <CardContent>
-                                    <Typography variant="h6" noWrap>{item.name}</Typography>
-                                    <Typography>{item.price} TL</Typography>
+                                    <Typography
+                                        variant="h6"
+                                        sx={{
+                                            mb: 1,
+                                            fontWeight: 600,
+                                            overflow: "hidden",
+                                            textOverflow: "ellipsis",
+                                            display: "-webkit-box",
+                                            WebkitLineClamp: 2,
+                                            WebkitBoxOrient: "vertical",
+                                        }}
+                                    >
+                                        {item.name}
+                                    </Typography>
+                                    <Typography
+                                        variant="h6"
+                                        color="primary"
+                                        sx={{ fontWeight: 700, mb: 2 }}
+                                    >
+                                        {item.price.toLocaleString("tr-TR", {
+                                            style: "currency",
+                                            currency: "TRY",
+                                        })}
+                                    </Typography>
                                     <Button
-                                        variant="outlined"
+                                        variant="contained"
                                         color="primary"
                                         size="small"
+                                        fullWidth
                                         onClick={() => navigate(`/product/${item.id}`)}
-                                        sx={{ marginTop: 1 }}
+                                        sx={{ borderRadius: 2 }}
                                     >
                                         Detay
                                     </Button>
