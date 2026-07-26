@@ -1,64 +1,91 @@
-# 🛍️ Alışveriş Sitesi Frontend 
+# NOVA — Demo E-Ticaret Mağazası
 
-Kısa bir açıklama: Bu proje, web sitesi frontendini geliştirmek için oluşturulmuştur.
+NOVA; ürün keşfi, kategori gezintisi, arama, favoriler, ürün detayı ve sepet
+akışlarını bir araya getiren responsive bir e-ticaret frontend çalışmasıdır.
 
-## 🎥 Proje Tanıtımı
+**Canlı demo:** [alisverissitem.dnzilkay.com](https://alisverissitem.dnzilkay.com/)
 
-**Canlı Demo:** [Deniz İlkay Alışveriş Sitesi](https://deniz-ilkay-alisveris-sitesi.netlify.app/)
+![NOVA mağaza vaka çalışması kapağı](public/nova-storefront-cover.png)
 
-**Ekran Görüntüleri:**
-![Ana Sayfa](src/ekrangoruntuleri/deniz-ilkay-alisveris-sitesi.netlify.app_.png)
-![Ürün Detay Sayfası](src/ekrangoruntuleri/urun_detay_sayfasi.png)
-![Admin Paneli](src/ekrangoruntuleri/adminpaneli.png)
+> Canlı uygulama sentetik katalog verileriyle çalışır. Gerçek ödeme, teslimat
+> veya kullanıcı verisi işlenmez. Ayrı geliştirilen backend prototipi canlı
+> deployment'a bağlı değildir.
 
+## Öne çıkan özellikler
 
+- Kampanya bandı, arama alanı ve kategori navigasyonu
+- Beş kategori altında tutarlı demo ürün kataloğu
+- İndirimli fiyat, puan, stok ve ürün özellikleri
+- Yeni gelenler, fırsatlar ve çok satanlar koleksiyonları
+- Ürün detay ve benzer ürün akışı
+- Tarayıcıda kalıcı favoriler
+- Sepet, adres ve demo sipariş adımları
+- Açık/koyu tema ve responsive mobil deneyim
+- Vercel için doğrudan SPA rota desteği
+- Route bazlı kod bölme ve optimize production build
 
-## 🚀 Özellikler
-- 🎨 Modern ve duyarlı tasarım
-- ⚡ Hızlı ve optimize edilmiş performans
-- 🌍 Çapraz tarayıcı desteği
+## Teknolojiler
 
-## 🛠️ Kurulum
-Projeyi klonlayın:
-```bash
-git clone https://github.com/kullanici/proje-frontend.git
+- React 18
+- TypeScript
+- Vite
+- Material UI
+- React Router
+- Prisma/Express backend prototipiyle uyarlanabilir servis katmanı
+
+## Veri yaklaşımı
+
+Uygulamanın varsayılan çalışma modu:
+
+```dotenv
+VITE_API_BASE_URL=http://localhost:3000
+VITE_USE_BACKEND=false
 ```
-Gerekli bağımlılıkları yükleyin:
+
+`VITE_USE_BACKEND=false` olduğunda ürünler, kategoriler ve siparişler yalnızca
+demo verileriyle çalışır. Canlı sitede kullanılan ve desteklenen mod budur.
+
+Bağımsız backend çalışması:
+[Alisveris-Sitem-Backend](https://github.com/dnzilkay/Alisveris-Sitem-Backend)
+
+Backend repository'si veri modeli ve REST API yaklaşımını gösteren ayrı bir
+prototiptir; bu frontend'in canlı sürümünü beslemez.
+
+## Yerel geliştirme
+
 ```bash
-npm install  # veya yarn install
+npm install
+npm run dev
 ```
 
-##  Kullanım
-Geliştirme ortamında çalıştırmadan önce `.env` dosyanızın doğru yapılandırıldığından emin olun.
-Geliştirme ortamında çalıştırmak için:
+Production build:
+
 ```bash
-npm run dev  # veya yarn dev
+npm run build
 ```
-Üretim için derlemek:
+
+Kod kalite kontrolü:
+
 ```bash
-npm run build  # veya yarn build
+npm run lint
 ```
-## 🧪 Test Kullanıcıları
-Bu proje için aşağıdaki test kullanıcılarını kullanabilirsiniz:
 
-| Kullanıcı Türü | E-posta               | Şifre     |
-|---------------|-----------------------|----------|
-| **Kullanıcı** | `user@example.com`     | `user123` |
-| **Admin**     | `admin@example.com`    | `admin123` |
+## Temel rotalar
 
-📌 **Not:** Bu hesaplar yalnızca test amaçlıdır ve üretim ortamında kullanılmamalıdır.
+| Rota | İçerik |
+| --- | --- |
+| `/` | Mağaza ana sayfası |
+| `/search?q=...` | Ürün arama sonuçları |
+| `/new-products` | Yeni gelen ürünler |
+| `/discounts` | İndirimli ürünler |
+| `/best-sellers` | Çok satan ürünler |
+| `/favorites` | Favori ürünler |
+| `/product/:id` | Ürün detayı |
+| `/category/:id` | Kategori ürünleri |
+| `/cart` | Sepet ve demo sipariş akışı |
 
-## 📌 Gereksinimler
-- Kullanıcı, backend'i çalıştırmak için mock data kullanabilir veya backend dosyasını indirerek çalıştırabilir.
-- Backend bağlantısının düzgün çalışması için `.env` dosyanızda aşağıdaki değişkenlerin bulunması gerekmektedir. `VITE_USE_BACKEND` değişkenini `true` veya `false` olarak ayarlayarak backend kullanımını belirleyebilirsiniz:
-  ```ini
-  VITE_API_BASE_URL=http://localhost:3000
-  VITE_USE_BACKEND=true
-  ```
-- Kullanıcı, backend'i çalıştırmak için mock data kullanabilir veya backend dosyasını indirerek çalıştırabilir.
-- Node.js (en son sürüm önerilir)
-- Paket yöneticisi (npm veya yarn)
-- Tarayıcı desteği
+## Proje durumu
 
-
-
+Frontend canlı ve kullanılabilir bir demo olarak yayınlanmıştır. Backend
+entegrasyonu bilinçli olarak devre dışıdır; proje portföyde bir e-ticaret
+frontend vaka çalışması olarak sunulur.

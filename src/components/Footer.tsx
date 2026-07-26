@@ -1,188 +1,111 @@
 import React from "react";
-import { Box, Typography, Grid, Link, Divider } from "@mui/material";
-import { useThemeContext } from "../context/ThemeContext";
+import {
+    Box,
+    Button,
+    Container,
+    Divider,
+    Grid,
+    Link,
+    Stack,
+    TextField,
+    Typography,
+} from "@mui/material";
 import { useNavigate } from "react-router-dom";
 
+const FooterLink: React.FC<{ label: string; onClick: () => void }> = ({ label, onClick }) => (
+    <Link
+        component="button"
+        type="button"
+        onClick={onClick}
+        color="inherit"
+        underline="none"
+        sx={{ width: "fit-content", color: "grey.400", "&:hover": { color: "white" } }}
+    >
+        {label}
+    </Link>
+);
+
 const Footer: React.FC = () => {
-    const { darkMode } = useThemeContext();
     const navigate = useNavigate();
 
     return (
-        <Box
-            component="footer"
-            sx={{
-                background: darkMode
-                    ? "linear-gradient(135deg, #1e293b 0%, #0f172a 100%)"
-                    : "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
-                color: "#fff",
-                padding: { xs: "30px 20px", md: "40px 0" },
-                marginTop: "auto",
-            }}
-        >
-            <Box sx={{ maxWidth: "1200px", margin: "0 auto", padding: { xs: "0 20px", md: "0 40px" } }}>
-                <Grid container spacing={{ xs: 3, md: 4 }}>
-                    {/* Hızlı Linkler */}
-                    <Grid item xs={12} sm={6} md={4}>
-                        <Typography
-                            variant="h6"
-                            gutterBottom
-                            sx={{
-                                fontWeight: 700,
-                                mb: 2,
-                                fontSize: { xs: "1.1rem", md: "1.25rem" },
-                            }}
-                        >
-                            Hızlı Bağlantılar
+        <Box component="footer" sx={{ mt: "auto", bgcolor: "#111827", color: "white" }}>
+            <Container maxWidth="xl" sx={{ py: { xs: 6, md: 8 } }}>
+                <Grid container spacing={{ xs: 4, md: 6 }}>
+                    <Grid item xs={12} md={5}>
+                        <Typography variant="h5" fontWeight={900} letterSpacing="-0.04em">
+                            NOVA.
                         </Typography>
-                        <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
-                            <Link
-                                component="button"
-                                onClick={() => navigate("/")}
+                        <Typography color="grey.400" sx={{ mt: 1.5, maxWidth: 430, lineHeight: 1.75 }}>
+                            Günlük hayat için seçilmiş teknoloji, ev, giyim ve aksesuar ürünlerini
+                            sade bir alışveriş deneyimiyle bir araya getiriyoruz.
+                        </Typography>
+                        <Typography variant="subtitle2" fontWeight={800} sx={{ mt: 3, mb: 1 }}>
+                            Yeni ürün ve fırsatlardan haberdar ol
+                        </Typography>
+                        <Stack
+                            component="form"
+                            onSubmit={(event) => event.preventDefault()}
+                            direction={{ xs: "column", sm: "row" }}
+                            spacing={1}
+                            sx={{ maxWidth: 460 }}
+                        >
+                            <TextField
+                                type="email"
+                                placeholder="E-posta adresin"
+                                size="small"
+                                fullWidth
+                                inputProps={{ "aria-label": "E-posta adresi" }}
                                 sx={{
-                                    color: "rgba(255,255,255,0.9)",
-                                    textDecoration: "none",
-                                    textAlign: "left",
-                                    "&:hover": { color: "#fff", textDecoration: "underline" },
-                                    cursor: "pointer",
+                                    bgcolor: "white",
+                                    borderRadius: 1.5,
+                                    "& .MuiOutlinedInput-notchedOutline": { border: 0 },
                                 }}
-                            >
-                                Anasayfa
-                            </Link>
-                            <Link
-                                component="button"
-                                onClick={() => navigate("/new-products")}
-                                sx={{
-                                    color: "rgba(255,255,255,0.9)",
-                                    textDecoration: "none",
-                                    textAlign: "left",
-                                    "&:hover": { color: "#fff", textDecoration: "underline" },
-                                    cursor: "pointer",
-                                }}
-                            >
-                                Yeni Ürünler
-                            </Link>
-                            <Link
-                                component="button"
-                                onClick={() => navigate("/discounts")}
-                                sx={{
-                                    color: "rgba(255,255,255,0.9)",
-                                    textDecoration: "none",
-                                    textAlign: "left",
-                                    "&:hover": { color: "#fff", textDecoration: "underline" },
-                                    cursor: "pointer",
-                                }}
-                            >
-                                İndirimler
-                            </Link>
-                            <Link
-                                component="button"
-                                onClick={() => navigate("/best-sellers")}
-                                sx={{
-                                    color: "rgba(255,255,255,0.9)",
-                                    textDecoration: "none",
-                                    textAlign: "left",
-                                    "&:hover": { color: "#fff", textDecoration: "underline" },
-                                    cursor: "pointer",
-                                }}
-                            >
-                                Çok Satanlar
-                            </Link>
-                        </Box>
+                            />
+                            <Button variant="contained" color="secondary" sx={{ whiteSpace: "nowrap" }}>
+                                Kaydol
+                            </Button>
+                        </Stack>
                     </Grid>
-
-                    {/* İletişim */}
-                    <Grid item xs={12} sm={6} md={4}>
-                        <Typography
-                            variant="h6"
-                            gutterBottom
-                            sx={{
-                                fontWeight: 700,
-                                mb: 2,
-                                fontSize: { xs: "1.1rem", md: "1.25rem" },
-                            }}
-                        >
-                            İletişim
-                        </Typography>
-                        <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
-                            <Typography variant="body2" sx={{ color: "rgba(255,255,255,0.9)" }}>
-                                📍 Adres: 123 Alışveriş Caddesi, İstanbul
-                            </Typography>
-                            <Typography variant="body2" sx={{ color: "rgba(255,255,255,0.9)" }}>
-                                📞 Telefon: +90 123 456 78 90
-                            </Typography>
-                            <Typography variant="body2" sx={{ color: "rgba(255,255,255,0.9)" }}>
-                                ✉️ Email: info@alisverissitesi.com
-                            </Typography>
-                        </Box>
+                    <Grid item xs={6} sm={4} md={2}>
+                        <Typography fontWeight={800} sx={{ mb: 2 }}>Mağaza</Typography>
+                        <Stack spacing={1.25}>
+                            <FooterLink label="Yeni gelenler" onClick={() => navigate("/new-products")} />
+                            <FooterLink label="Çok satanlar" onClick={() => navigate("/best-sellers")} />
+                            <FooterLink label="Fırsatlar" onClick={() => navigate("/discounts")} />
+                            <FooterLink label="Tüm ürünler" onClick={() => navigate("/search")} />
+                        </Stack>
                     </Grid>
-
-                    {/* Sosyal Medya */}
-                    <Grid item xs={12} sm={12} md={4}>
-                        <Typography
-                            variant="h6"
-                            gutterBottom
-                            sx={{
-                                fontWeight: 700,
-                                mb: 2,
-                                fontSize: { xs: "1.1rem", md: "1.25rem" },
-                            }}
-                        >
-                            Bizi Takip Edin
-                        </Typography>
-                        <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
-                            <Link
-                                href="#"
-                                sx={{
-                                    color: "rgba(255,255,255,0.9)",
-                                    textDecoration: "none",
-                                    "&:hover": { color: "#fff", textDecoration: "underline" },
-                                }}
-                            >
-                                Facebook
-                            </Link>
-                            <Link
-                                href="#"
-                                sx={{
-                                    color: "rgba(255,255,255,0.9)",
-                                    textDecoration: "none",
-                                    "&:hover": { color: "#fff", textDecoration: "underline" },
-                                }}
-                            >
-                                Twitter
-                            </Link>
-                            <Link
-                                href="#"
-                                sx={{
-                                    color: "rgba(255,255,255,0.9)",
-                                    textDecoration: "none",
-                                    "&:hover": { color: "#fff", textDecoration: "underline" },
-                                }}
-                            >
-                                Instagram
-                            </Link>
-                        </Box>
+                    <Grid item xs={6} sm={4} md={2}>
+                        <Typography fontWeight={800} sx={{ mb: 2 }}>Hesabım</Typography>
+                        <Stack spacing={1.25}>
+                            <FooterLink label="Profilim" onClick={() => navigate("/profile")} />
+                            <FooterLink label="Siparişlerim" onClick={() => navigate("/orders")} />
+                            <FooterLink label="Sepetim" onClick={() => navigate("/cart")} />
+                            <FooterLink label="Giriş yap" onClick={() => navigate("/auth")} />
+                        </Stack>
+                    </Grid>
+                    <Grid item xs={12} sm={4} md={3}>
+                        <Typography fontWeight={800} sx={{ mb: 2 }}>Alışveriş desteği</Typography>
+                        <Stack spacing={1.25} color="grey.400">
+                            <Typography variant="body2">Hafta içi 09.00–18.00</Typography>
+                            <Typography variant="body2">14 gün kolay iade</Typography>
+                            <Typography variant="body2">Güvenli ödeme altyapısı</Typography>
+                            <Typography variant="body2">Demo mağaza deneyimi</Typography>
+                        </Stack>
                     </Grid>
                 </Grid>
-            </Box>
-
-            {/* Alt Çizgi ve Kopya Hakkı */}
-            <Divider
-                sx={{
-                    backgroundColor: "rgba(255, 255, 255, 0.2)",
-                    marginY: { xs: "20px", md: "30px" },
-                }}
-            />
-            <Typography
-                align="center"
-                variant="body2"
-                sx={{
-                    paddingTop: "10px",
-                    color: "rgba(255,255,255,0.8)",
-                    fontSize: { xs: "0.85rem", md: "0.9rem" },
-                }}
-            >
-                © 2024 Alışveriş Sitesi. Tüm Hakları Saklıdır.
-            </Typography>
+                <Divider sx={{ my: 4, borderColor: "rgba(255,255,255,.12)" }} />
+                <Stack
+                    direction={{ xs: "column", sm: "row" }}
+                    justifyContent="space-between"
+                    spacing={1}
+                    color="grey.500"
+                >
+                    <Typography variant="caption">© 2026 NOVA. Demo e-ticaret uygulaması.</Typography>
+                    <Typography variant="caption">Fiyatlar ve ürünler tanıtım amaçlıdır.</Typography>
+                </Stack>
+            </Container>
         </Box>
     );
 };

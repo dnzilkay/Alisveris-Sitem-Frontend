@@ -22,21 +22,14 @@ export const registerUser = async (data: { username: string; email: string; pass
             const response = await apiClient.post('/users/register', data);
             return response.data;
         } else {
-            return new Promise(async (resolve, reject) => {
-                const users = await getUsers();
-                const userExists = users.some((u: { email: string }) => u.email === data.email);
-
-
-                if (userExists) {
-                    reject(new Error("Bu e-posta adresi zaten kullanılıyor."));
-                    return;
-                }
-
-                setTimeout(async () => {
-                    const newUser = await addUser({ ...data, role: "user" });
-                    resolve({ message: "Kayıt başarılı!", user: newUser });
-                }, 500);
-            });
+            const users = await getUsers();
+            const userExists = users.some((user) => user.email === data.email);
+            if (userExists) {
+                throw new Error("Bu e-posta adresi zaten kullanılıyor.");
+            }
+            await new Promise((resolve) => window.setTimeout(resolve, 300));
+            const newUser = await addUser({ ...data, role: "user" });
+            return { message: "Kayıt başarılı!", user: newUser };
         }
     } catch (error) {
         console.error("Kayıt hatası:", error);
@@ -58,21 +51,17 @@ export const loginUser = async (data: { email: string; password: string }) => {
             localStorage.setItem("authToken", response.data.token);
             return response.data;
         } else {
-            return new Promise(async (resolve, reject) => {
-                const users = await getUsers();
-                setTimeout(() => {
-                    const user = users.find((u: { email: string; password: string }) =>
-                        u.email === data.email && u.password === data.password
-                    );
-                    if (user) {
-                        const mockToken = generateFakeJWT(user.id, user.username, user.email, user.role);
-                        localStorage.setItem("authToken", mockToken);
-                        resolve({ token: mockToken, user: { id: user.id, username: user.username, role: user.role } });
-                    } else {
-                        reject(new Error("Kullanıcı adı veya şifre hatalı!"));
-                    }
-                }, 500);
-            });
+            const users = await getUsers();
+            await new Promise((resolve) => window.setTimeout(resolve, 300));
+            const user = users.find(
+                (candidate) => candidate.email === data.email && candidate.password === data.password,
+            );
+            if (!user) {
+                throw new Error("Kullanıcı adı veya şifre hatalı!");
+            }
+            const mockToken = generateFakeJWT(user.id, user.username, user.email, user.role);
+            localStorage.setItem("authToken", mockToken);
+            return { token: mockToken, user: { id: user.id, username: user.username, role: user.role } };
         }
     } catch (error) {
         console.error("Giriş hatası:", error);

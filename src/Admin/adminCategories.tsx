@@ -20,9 +20,11 @@ import {
     updateCategory,
     deleteCategory,
 } from "../services/categoryService";
+import { CategoryWithProducts } from "../services/categoryService";
+import { CatalogProduct } from "../data/catalog";
 
 const AdminCategories: React.FC = () => {
-    const [categories, setCategories] = useState<any[]>([]);
+    const [categories, setCategories] = useState<CategoryWithProducts[]>([]);
     const [modalOpen, setModalOpen] = useState(false);
     const [productModalOpen, setProductModalOpen] = useState(false);
     const [formValues, setFormValues] = useState({
@@ -31,7 +33,7 @@ const AdminCategories: React.FC = () => {
         description: "",
         isActive: true,
     });
-    const [selectedCategoryProducts, setSelectedCategoryProducts] = useState<any[]>([]);
+    const [selectedCategoryProducts, setSelectedCategoryProducts] = useState<CatalogProduct[]>([]);
     const [isEditMode, setIsEditMode] = useState(false);
     const [snackbarOpen, setSnackbarOpen] = useState(false);
     const [snackbarMessage, setSnackbarMessage] = useState("");
@@ -91,8 +93,11 @@ const AdminCategories: React.FC = () => {
                 handleSnackbarMessage("Kategori başarıyla güncellendi!");
             } else {
                 // Yeni kategori eklerken id alanını gönderme
-                const { id, ...data } = formValues;
-                const newCategory = await createCategory(data);
+                const newCategory = await createCategory({
+                    name: formValues.name,
+                    description: formValues.description,
+                    isActive: formValues.isActive,
+                });
                 setCategories((prev) => [...prev, newCategory]);
                 handleSnackbarMessage("Kategori başarıyla eklendi!");
             }
@@ -121,7 +126,7 @@ const AdminCategories: React.FC = () => {
     };
 
     // Ürün Modalını Açma
-    const handleOpenProductModal = (products: any[]) => {
+    const handleOpenProductModal = (products: CatalogProduct[]) => {
         console.log("Seçilen Kategori Ürünleri:", products); // Debugging için
         setSelectedCategoryProducts(products);
         setProductModalOpen(true);

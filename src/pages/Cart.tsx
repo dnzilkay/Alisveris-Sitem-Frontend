@@ -24,8 +24,6 @@ import { useAuth } from "../context/AuthContext";
 import { addOrder } from "../services/orderService";
 import { useNavigate } from "react-router-dom";
 
-const useBackend = import.meta.env.VITE_USE_BACKEND === "true";
-
 const Cart: React.FC = () => {
     const { cart, increaseQuantity, decreaseQuantity, removeItem, clearCart, completeOrder } = useCart();
     const { user } = useAuth();
@@ -79,11 +77,7 @@ const Cart: React.FC = () => {
 
             console.log("Gönderilecek Sipariş Verisi:", order);
 
-            if (useBackend) {
-                await addOrder(order);
-            } else {
-                console.log("Mock Sipariş Eklendi:", order);
-            }
+            await addOrder(order);
 
             completeOrder();
 
@@ -100,15 +94,20 @@ const Cart: React.FC = () => {
     };
 
     return (
-        <Box sx={{ padding: { xs: 2, sm: 3, md: 4 }, maxWidth: "1200px", margin: "0 auto" }}>
+        <Box sx={{
+            padding: { xs: 2, sm: 3, md: 4 },
+            maxWidth: "1200px",
+            margin: "0 auto",
+            width: "100%",
+        }}>
             <Typography
                 variant="h4"
                 gutterBottom
                 sx={{
-                    fontWeight: 700,
-                    mb: 3,
-                    fontSize: { xs: "1.75rem", md: "2.5rem" },
-                    color: "primary.main",
+                    fontSize: { xs: "1.75rem", md: "2.125rem" },
+                    fontWeight: "bold",
+                    color: "text.primary",
+                    mb: 3
                 }}
             >
                 Sepetim
@@ -124,9 +123,11 @@ const Cart: React.FC = () => {
                                 display: "flex",
                                 flexDirection: { xs: "column", sm: "row" },
                                 marginBottom: 2,
-                                boxShadow: 3,
+                                boxShadow: "none",
+                                border: "1px solid",
+                                borderColor: "divider",
                                 borderRadius: 3,
-                                overflow: "hidden",
+                                overflow: "hidden"
                             }}
                         >
                             <CardMedia
@@ -134,89 +135,79 @@ const Cart: React.FC = () => {
                                 image={item.image}
                                 alt={item.name}
                                 sx={{
-                                    width: { xs: "100%", sm: 150 },
-                                    height: { xs: 200, sm: 150 },
+                                    width: { xs: "100%", sm: 120 },
+                                    height: { xs: 200, sm: 120 },
                                     objectFit: "cover",
+                                    backgroundColor: "action.hover",
                                 }}
                             />
-                            <CardContent
-                                sx={{
-                                    flex: 1,
-                                    display: "flex",
-                                    flexDirection: "column",
-                                    justifyContent: "space-between",
-                                    p: { xs: 2, sm: 3 },
-                                }}
-                            >
-                                <Box>
-                                    <Typography
-                                        variant="h6"
-                                        sx={{
-                                            fontWeight: 600,
-                                            mb: 1,
-                                            fontSize: { xs: "1rem", sm: "1.25rem" },
-                                        }}
-                                    >
-                                        {item.name}
-                                    </Typography>
-                                    <Typography
-                                        variant="h6"
-                                        color="primary"
-                                        sx={{ fontWeight: 700, mb: 2 }}
-                                    >
-                                        {typeof item.price === "number"
-                                            ? item.price.toLocaleString("tr-TR", {
-                                                  style: "currency",
-                                                  currency: "TRY",
-                                              })
-                                            : `${item.price} TL`}
-                                    </Typography>
-                                </Box>
-                                <Box
+                            <CardContent sx={{ flex: 1, p: { xs: 2, sm: 3 } }}>
+                                <Typography
+                                    variant="h6"
                                     sx={{
-                                        display: "flex",
-                                        alignItems: "center",
-                                        justifyContent: "space-between",
-                                        flexWrap: "wrap",
-                                        gap: 1,
+                                        fontSize: { xs: "1rem", md: "1.25rem" },
+                                        fontWeight: 600,
+                                        mb: 1
                                     }}
                                 >
+                                    {item.name}
+                                </Typography>
+                                <Typography
+                                    sx={{
+                                        color: "secondary.main",
+                                        fontWeight: "bold",
+                                        mb: 2,
+                                        fontSize: { xs: "0.9rem", md: "1rem" }
+                                    }}
+                                >
+                                    Fiyat: {item.price.toLocaleString("tr-TR", {
+                                        style: "currency",
+                                        currency: "TRY"
+                                    })}
+                                </Typography>
+                                <Box sx={{
+                                    display: "flex",
+                                    alignItems: "center",
+                                    justifyContent: "space-between",
+                                    flexWrap: "wrap",
+                                    gap: 1
+                                }}>
                                     <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
                                         <IconButton
                                             onClick={() => decreaseQuantity(item.id)}
                                             sx={{
-                                                backgroundColor: "action.hover",
-                                                "&:hover": { backgroundColor: "action.selected" },
+                                                border: "1px solid",
+                                                borderColor: "divider",
                                             }}
                                         >
-                                            <RemoveIcon />
+                                            <RemoveIcon fontSize="small" />
                                         </IconButton>
-                                        <Typography
-                                            sx={{
-                                                minWidth: "30px",
-                                                textAlign: "center",
-                                                fontWeight: 600,
-                                            }}
-                                        >
+                                        <Typography sx={{ minWidth: "30px", textAlign: "center", fontWeight: 600 }}>
                                             {item.quantity}
                                         </Typography>
                                         <IconButton
                                             onClick={() => increaseQuantity(item.id)}
                                             sx={{
-                                                backgroundColor: "action.hover",
-                                                "&:hover": { backgroundColor: "action.selected" },
+                                                border: "1px solid",
+                                                borderColor: "divider",
                                             }}
                                         >
-                                            <AddIcon />
+                                            <AddIcon fontSize="small" />
                                         </IconButton>
                                     </Box>
                                     <Button
                                         startIcon={<DeleteIcon />}
-                                        color="error"
+                                        sx={{
+                                            color: "#ef4444",
+                                            borderColor: "#ef4444",
+                                            "&:hover": {
+                                                bgcolor: "#fee2e2",
+                                                borderColor: "#ef4444"
+                                            }
+                                        }}
                                         variant="outlined"
                                         size="small"
                                         onClick={() => removeItem(item.id)}
-                                        sx={{ borderRadius: 2 }}
                                     >
                                         Kaldır
                                     </Button>
@@ -225,106 +216,88 @@ const Cart: React.FC = () => {
                         </Card>
                     ))}
 
-                    <Box
-                        sx={{
-                            marginTop: 4,
-                            backgroundColor: "background.paper",
-                            p: 3,
-                            borderRadius: 3,
-                            boxShadow: 2,
-                        }}
-                    >
+                    <Box sx={{ marginTop: 4 }}>
                         <TextField
                             fullWidth
                             label="Teslimat Adresi"
                             value={address}
                             onChange={(e) => setAddress(e.target.value)}
+                            sx={{ marginBottom: 2 }}
                             multiline
                             rows={3}
-                            sx={{ marginBottom: 2 }}
                         />
                         <FormControl fullWidth sx={{ marginBottom: 2 }}>
                             <InputLabel>Ödeme Türü</InputLabel>
-                            <Select value={paymentType} onChange={(e) => setPaymentType(e.target.value)}>
-                                <MenuItem value="Kart">Kredi/Banka Kartı</MenuItem>
+                            <Select
+                                value={paymentType}
+                                onChange={(e) => setPaymentType(e.target.value)}
+                            >
+                                <MenuItem value="Kart">Kart</MenuItem>
                                 <MenuItem value="Kapıda Ödeme">Kapıda Ödeme</MenuItem>
                             </Select>
                         </FormControl>
                     </Box>
-                </>
-            ) : (
-                <Box
-                    sx={{
-                        textAlign: "center",
-                        py: 8,
+
+                    <Box sx={{
+                        marginTop: 4,
+                        padding: 3,
                         backgroundColor: "background.paper",
                         borderRadius: 3,
-                        boxShadow: 2,
-                    }}
-                >
-                    <Typography variant="h6" color="text.secondary" sx={{ mb: 2 }}>
-                        Sepetiniz boş
-                    </Typography>
-                    <Button
-                        variant="contained"
-                        color="primary"
-                        onClick={() => navigate("/")}
-                        sx={{ borderRadius: 2, px: 4 }}
-                    >
-                        Alışverişe Başla
-                    </Button>
-                </Box>
-            )}
-
-            {cart.length > 0 && (
-                <Box
-                    sx={{
-                        marginTop: 3,
-                        padding: 3,
-                        backgroundColor: "primary.main",
-                        color: "white",
-                        borderRadius: 3,
-                        boxShadow: 4,
-                    }}
-                >
-                    <Box
-                        sx={{
+                        border: "1px solid",
+                        borderColor: "divider",
+                    }}>
+                        <Box sx={{
                             display: "flex",
                             justifyContent: "space-between",
                             alignItems: "center",
-                            flexWrap: "wrap",
-                            gap: 2,
-                            mb: 2,
-                        }}
-                    >
-                        <Typography variant="h6" sx={{ fontWeight: 600 }}>
-                            Toplam Tutar:
-                        </Typography>
-                        <Typography variant="h5" sx={{ fontWeight: 700 }}>
-                            {totalPrice.toLocaleString("tr-TR", {
-                                style: "currency",
-                                currency: "TRY",
-                            })}
-                        </Typography>
+                            mb: 2
+                        }}>
+                            <Typography variant="h6" sx={{ fontWeight: 800 }}>
+                                Toplam Tutar:
+                            </Typography>
+                            <Typography
+                                variant="h5"
+                                sx={{
+                                    color: "secondary.main",
+                                    fontWeight: "bold",
+                                    fontSize: { xs: "1.25rem", md: "1.5rem" }
+                                }}
+                            >
+                                {totalPrice.toLocaleString("tr-TR", {
+                                    style: "currency",
+                                    currency: "TRY"
+                                })}
+                            </Typography>
+                        </Box>
+                        <Button
+                            variant="contained"
+                            fullWidth
+                            sx={{
+                                py: 1.5,
+                                fontSize: "1rem",
+                                fontWeight: 800,
+                            }}
+                            onClick={handleOrderSubmit}
+                            disabled={cart.length === 0}
+                        >
+                            Siparişi Tamamla
+                        </Button>
                     </Box>
-                    <Button
-                        variant="contained"
-                        fullWidth
-                        sx={{
-                            backgroundColor: "white",
-                            color: "primary.main",
-                            py: 1.5,
-                            fontSize: "1.1rem",
-                            fontWeight: 600,
-                            borderRadius: 2,
-                            "&:hover": {
-                                backgroundColor: "grey.100",
-                            },
-                        }}
-                        onClick={handleOrderSubmit}
-                        disabled={cart.length === 0}
-                    >
-                        Siparişi Tamamla
+                </>
+            ) : (
+                <Box sx={{
+                    textAlign: "center",
+                    py: 8,
+                    color: "#64748b"
+                }}>
+                    <Typography variant="h6" sx={{ mb: 1 }}>
+                        Sepetiniz boş
+                    </Typography>
+                    <Typography variant="body2">
+                        Alışverişe başlamak için ürünlere göz atın
+                    </Typography>
+                    <Button variant="contained" onClick={() => navigate("/")} sx={{ mt: 2.5 }}>
+                        Alışverişe başla
                     </Button>
                 </Box>
             )}

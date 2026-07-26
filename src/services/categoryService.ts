@@ -1,120 +1,98 @@
 import apiClient from "../apiClient";
+import { CatalogCategory, catalogCategories, catalogProducts } from "../data/catalog";
 
 const useBackend = import.meta.env.VITE_USE_BACKEND === "true";
 
-// Mock Kategori Verisi
-let mockCategories = [
-    { id: 1, name: "Elektronik", description: "Telefon, kulaklık, saat gibi ürünler", isActive: true },
-    { id: 2, name: "Giyim", description: "Tişörtler, pantolonlar ve daha fazlası", isActive: true },
-    { id: 3, name: "Ev & Yaşam", description: "Mobilya, dekorasyon ve ev eşyaları", isActive: true },
-];
+export interface CategoryInput {
+    name: string;
+    description: string;
+    isActive: boolean;
+}
 
-// Tüm Kategorileri Getir
-export const fetchCategories = async () => {
+export interface CategoryWithProducts extends CatalogCategory {
+    products: typeof catalogProducts;
+}
+
+let mockCategories: CatalogCategory[] = [...catalogCategories];
+
+const delay = <T,>(value: T, milliseconds = 140): Promise<T> =>
+    new Promise((resolve) => window.setTimeout(() => resolve(value), milliseconds));
+
+const withProducts = (category: CatalogCategory): CategoryWithProducts => ({
+    ...category,
+    products: catalogProducts.filter((product) => product.categoryId === category.id),
+});
+
+export const fetchCategories = async (): Promise<CategoryWithProducts[]> => {
     if (useBackend) {
-        try {
-            const response = await apiClient.get("/categories");
-            return response.data;
-        } catch (error) {
-            console.error("Kategoriler alınırken hata oluştu:", error);
-            throw error;
-        }
-    } else {
-        return new Promise((resolve) => setTimeout(() => resolve(mockCategories), 500));
+        const response = await apiClient.get<CategoryWithProducts[]>("/categories");
+        return response.data;
     }
+
+    return delay(mockCategories.filter((category) => category.isActive).map(withProducts));
 };
 
-// Tek bir kategori ve ürünlerini getir
-export const fetchCategoryById = async (id: number) => {
+export const fetchCategoryById = async (id: number): Promise<CategoryWithProducts> => {
     if (useBackend) {
-        try {
-            const response = await apiClient.get(`/categories/${id}`);
-            return response.data;
-        } catch (error) {
-            console.error(`Kategori (${id}) alınırken hata oluştu:`, error);
-            throw error;
-        }
-    } else {
-        return new Promise((resolve, reject) => {
-            setTimeout(() => {
-                const category = mockCategories.find((c) => c.id === id);
-                if (category) {
-                    resolve(category);
-                } else {
-                    reject("Kategori bulunamadı!");
-                }
-            }, 500);
-        });
+        const response = await apiClient.get<CategoryWithProducts>(`/categories/${id}`);
+        return response.data;
     }
+
+    const category = mockCategories.find((candidate) => candidate.id === id);
+    if (!category) {
+        throw new Error("Kategori bulunamadı.");
+    }
+
+    return delay(withProducts(category));
 };
 
-// Yeni Kategori Oluştur
-export const createCategory = async (categoryData: { name: string; description: string; isActive: boolean }) => {
+export const createCategory = async (categoryData: CategoryInput): Promise<CategoryWithProducts> => {
     if (useBackend) {
-        try {
-            const response = await apiClient.post("/categories", categoryData);
-            return response.data;
-        } catch (error) {
-            console.error("Kategori oluşturulurken hata oluştu:", error);
-            throw error;
-        }
-    } else {
-        return new Promise((resolve) => {
-            setTimeout(() => {
-                const newCategory = { id: mockCategories.length + 1, ...categoryData };
-                mockCategories.push(newCategory);
-                resolve(newCategory);
-            }, 500);
-        });
+        const response = await apiClient.post<CategoryWithProducts>("/categories", categoryData);
+        return response.data;
     }
+
+    const nextId = Math.max(0, ...mockCategories.map((category) => category.id)) + 1;
+    const category: CatalogCategory = {
+        id: nextId,
+        image: catalogCategories[0].image,
+        ...categoryData,
+    };
+    mockCategories = [...mockCategories, category];
+    return delay(withProducts(category));
 };
 
-// Kategoriyi Güncelle
-export const updateCategory = async (id: number, categoryData: { name: string; description: string; isActive: boolean }) => {
+export const updateCategory = async (
+    id: number,
+    categoryData: CategoryInput,
+): Promise<CategoryWithProducts> => {
     if (useBackend) {
-        try {
-            const response = await apiClient.put(`/categories/${id}`, categoryData);
-            return response.data;
-        } catch (error) {
-            console.error(`Kategori (${id}) güncellenirken hata oluştu:`, error);
-            throw error;
-        }
-    } else {
-        return new Promise((resolve, reject) => {
-            setTimeout(() => {
-                const index = mockCategories.findIndex((c) => c.id === id);
-                if (index !== -1) {
-                    mockCategories[index] = { ...mockCategories[index], ...categoryData };
-                    resolve(mockCategories[index]);
-                } else {
-                    reject("Kategori bulunamadı!");
-                }
-            }, 500);
-        });
+        const response = await apiClient.put<CategoryWithProducts>(`/categories/${id}`, categoryData);
+        return response.data;
     }
+
+    const current = mockCategories.find((category) => category.id === id);
+    if (!current) {
+        throw new Error("Kategori bulunamadı.");
+    }
+
+    const updatedCategory = { ...current, ...categoryData };
+    mockCategories = mockCategories.map((category) =>
+        category.id === id ? updatedCategory : category,
+    );
+    return delay(withProducts(updatedCategory));
 };
 
-// Kategoriyi Sil
-export const deleteCategory = async (id: number) => {
+export const deleteCategory = async (id: number): Promise<{ message: string }> => {
     if (useBackend) {
-        try {
-            await apiClient.delete(`/categories/${id}`);
-            console.log(`Kategori (${id}) başarıyla silindi.`);
-        } catch (error) {
-            console.error(`Kategori (${id}) silinirken hata oluştu:`, error);
-            throw error;
-        }
-    } else {
-        return new Promise((resolve, reject) => {
-            setTimeout(() => {
-                const index = mockCategories.findIndex((c) => c.id === id);
-                if (index !== -1) {
-                    mockCategories.splice(index, 1);
-                    resolve({ message: "Kategori başarıyla silindi" });
-                } else {
-                    reject("Kategori bulunamadı!");
-                }
-            }, 500);
-        });
+        await apiClient.delete(`/categories/${id}`);
+        return { message: "Kategori başarıyla silindi." };
     }
+
+    if (!mockCategories.some((category) => category.id === id)) {
+        throw new Error("Kategori bulunamadı.");
+    }
+
+    mockCategories = mockCategories.filter((category) => category.id !== id);
+    return delay({ message: "Kategori başarıyla silindi." });
 };

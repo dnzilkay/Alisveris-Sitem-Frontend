@@ -74,7 +74,7 @@ const AdminUsers: React.FC = () => {
 
     // Form Doğrulama
     const validateForm = () => {
-        let errors = { username: "", email: "" };
+        const errors = { username: "", email: "" };
         let isValid = true;
 
         if (!formValues.username.trim()) {
@@ -101,8 +101,12 @@ const AdminUsers: React.FC = () => {
         }
         try {
             if (formValues.id === 0) {
-                const { id, ...newUserValues } = formValues; // `id` hariç diğer alanları al
-                newUserValues.password = "123456";
+                const newUserValues = {
+                    username: formValues.username,
+                    email: formValues.email,
+                    password: "123456",
+                    role: formValues.role,
+                };
                 console.log("Gönderilen Veriler:", newUserValues);
                 const newUser = await addUser(newUserValues);
                 console.log("Yeni Kullanıcı:", newUser);

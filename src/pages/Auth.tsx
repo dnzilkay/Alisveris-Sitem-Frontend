@@ -59,28 +59,42 @@ const Auth: React.FC = () => {
     };
 
     return (
-        <Box
-            sx={{
-                maxWidth: { xs: "90%", sm: 450 },
-                margin: "auto",
-                marginTop: { xs: 3, md: 5 },
-                padding: { xs: 2, sm: 3 },
-                boxShadow: 4,
-                borderRadius: 3,
-                backgroundColor: "background.paper",
-            }}
-        >
-            <Tabs value={tabIndex} onChange={handleTabChange} centered variant="fullWidth">
-                <Tab label="Giriş Yap" sx={{ fontSize: { xs: "0.9rem", md: "1rem" } }} />
-                <Tab label="Kayıt Ol" sx={{ fontSize: { xs: "0.9rem", md: "1rem" } }} />
+        <Box sx={{
+            maxWidth: { xs: "100%", sm: 450 },
+            width: "100%",
+            margin: "auto",
+            marginTop: { xs: 2, md: 5 },
+            padding: { xs: 2, sm: 3 },
+            boxShadow: "0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1)",
+            borderRadius: 2,
+            backgroundColor: "#ffffff"
+        }}>
+            <Tabs
+                value={tabIndex}
+                onChange={handleTabChange}
+                centered
+                sx={{
+                    "& .MuiTab-root": {
+                        fontSize: { xs: "0.875rem", md: "1rem" },
+                        minWidth: { xs: 100, md: 120 }
+                    }
+                }}
+            >
+                <Tab label="Giriş Yap" />
+                <Tab label="Kayıt Ol" />
             </Tabs>
 
             {tabIndex === 0 && (
-                <Box sx={{ marginTop: 3 }}>
+                <Box sx={{ marginTop: { xs: 2, md: 3 } }}>
                     <Typography
                         variant="h6"
                         gutterBottom
-                        sx={{ fontWeight: 600, mb: 3, textAlign: "center" }}
+                        sx={{
+                            fontSize: { xs: "1.1rem", md: "1.25rem" },
+                            fontWeight: 600,
+                            color: "#1e293b",
+                            mb: 2
+                        }}
                     >
                         Giriş Yap
                     </Typography>
@@ -103,10 +117,16 @@ const Auth: React.FC = () => {
                     />
                     <Button
                         variant="contained"
-                        color="primary"
                         fullWidth
                         onClick={handleLogin}
-                        sx={{ py: 1.5, borderRadius: 2, fontWeight: 600 }}
+                        sx={{
+                            bgcolor: "#6366f1",
+                            py: 1.5,
+                            fontSize: "1rem",
+                            fontWeight: 600,
+                            "&:hover": { bgcolor: "#4f46e5" },
+                            textTransform: "none"
+                        }}
                     >
                         Giriş Yap
                     </Button>
@@ -114,11 +134,16 @@ const Auth: React.FC = () => {
             )}
 
             {tabIndex === 1 && (
-                <Box sx={{ marginTop: 3 }}>
+                <Box sx={{ marginTop: { xs: 2, md: 3 } }}>
                     <Typography
                         variant="h6"
                         gutterBottom
-                        sx={{ fontWeight: 600, mb: 3, textAlign: "center" }}
+                        sx={{
+                            fontSize: { xs: "1.1rem", md: "1.25rem" },
+                            fontWeight: 600,
+                            color: "#1e293b",
+                            mb: 2
+                        }}
                     >
                         Kayıt Ol
                     </Typography>
@@ -149,10 +174,16 @@ const Auth: React.FC = () => {
                     />
                     <Button
                         variant="contained"
-                        color="primary"
                         fullWidth
                         onClick={handleRegister}
-                        sx={{ py: 1.5, borderRadius: 2, fontWeight: 600 }}
+                        sx={{
+                            bgcolor: "#ec4899",
+                            py: 1.5,
+                            fontSize: "1rem",
+                            fontWeight: 600,
+                            "&:hover": { bgcolor: "#db2777" },
+                            textTransform: "none"
+                        }}
                     >
                         Kayıt Ol
                     </Button>

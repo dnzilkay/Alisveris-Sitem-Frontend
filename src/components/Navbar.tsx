@@ -1,311 +1,258 @@
-import React, { useState } from "react";
+import React, { FormEvent, useState } from "react";
 import {
     AppBar,
-    Toolbar,
-    Typography,
-    InputBase,
-    IconButton,
+    Avatar,
     Badge,
     Box,
-    Menu,
-    MenuItem,
     Button,
-    Avatar,
-    useMediaQuery,
-    useTheme,
+    Container,
     Drawer,
+    IconButton,
+    InputBase,
     List,
-    ListItem,
     ListItemButton,
     ListItemText,
+    Menu,
+    MenuItem,
+    Stack,
+    Toolbar,
+    Tooltip,
+    Typography,
+    useMediaQuery,
+    useTheme,
 } from "@mui/material";
-import { ShoppingCart, Search, ChevronDown, Menu as MenuIcon } from "lucide-react";
+import { Heart, Menu as MenuIcon, Moon, Search, ShoppingBag, Sun, UserRound, X } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { useThemeContext } from "../context/ThemeContext";
-import { DarkModeSwitch } from "react-toggle-dark-mode";
-import { useCart } from "../context/CartContext";
 import { useAuth } from "../context/AuthContext";
+import { useCart } from "../context/CartContext";
+import { useThemeContext } from "../context/ThemeContext";
+import { useFavorites } from "../context/favoritesContext";
 
 const Navbar: React.FC = () => {
-    const [avatarAnchorEl, setAvatarAnchorEl] = useState<null | HTMLElement>(null);
+    const [searchTerm, setSearchTerm] = useState("");
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-    const { toggleTheme, darkMode } = useThemeContext();
+    const [avatarAnchorEl, setAvatarAnchorEl] = useState<HTMLElement | null>(null);
     const navigate = useNavigate();
-    const { cart } = useCart();
-    const { user, logout } = useAuth();
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down("md"));
-
-    const handleAvatarClick = (event: React.MouseEvent<HTMLElement>) => {
-        setAvatarAnchorEl(event.currentTarget);
-    };
-
-    const handleAvatarClose = () => {
-        setAvatarAnchorEl(null);
-    };
-
+    const { darkMode, toggleTheme } = useThemeContext();
+    const { cart } = useCart();
+    const { user, logout } = useAuth();
+    const { favorites } = useFavorites();
     const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
 
-    const handleMobileMenuClose = () => {
+    const submitSearch = (event: FormEvent) => {
+        event.preventDefault();
+        const query = searchTerm.trim();
+        navigate(query ? `/search?q=${encodeURIComponent(query)}` : "/search");
         setMobileMenuOpen(false);
     };
 
-    const handleNavigation = (path: string) => {
+    const navigateAndClose = (path: string) => {
         navigate(path);
-        handleMobileMenuClose();
+        setMobileMenuOpen(false);
+        setAvatarAnchorEl(null);
     };
 
     return (
-        <Box>
-            <AppBar
-                position="static"
-                sx={{
-                    background: darkMode
-                        ? "linear-gradient(135deg, #1e293b 0%, #0f172a 100%)"
-                        : "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
-                    color: "#fff",
-                    boxShadow: "0 4px 20px rgba(0,0,0,0.1)",
-                }}
-            >
-                <Toolbar
-                    sx={{
-                        display: "flex",
-                        justifyContent: "space-between",
-                        gap: { xs: 1, md: 2 },
-                        padding: { xs: "8px 12px", md: "12px 24px" },
-                    }}
-                >
-                    {/* Logo */}
-                    <Typography
-                        variant={isMobile ? "h6" : "h5"}
-                        fontWeight="bold"
-                        sx={{
-                            cursor: "pointer",
-                            color: "#fff",
-                            flexShrink: 0,
-                            background: "linear-gradient(45deg, #fff 30%, #f0f0f0 90%)",
-                            WebkitBackgroundClip: "text",
-                            WebkitTextFillColor: "transparent",
-                        }}
-                        onClick={() => navigate("/")}
+        <Box component="header">
+            <Box sx={{ bgcolor: "primary.main", color: "primary.contrastText", py: 0.75 }}>
+                <Container maxWidth="xl">
+                    <Stack
+                        direction="row"
+                        justifyContent="center"
+                        spacing={{ xs: 1, sm: 3 }}
+                        divider={<Box component="span" sx={{ opacity: 0.45 }}>•</Box>}
                     >
-                        {isMobile ? "A.S." : "Alışveriş Sitesi"}
-                    </Typography>
+                        <Typography variant="caption" fontWeight={700}>
+                            1.500 TL üzeri ücretsiz kargo
+                        </Typography>
+                        <Typography variant="caption" fontWeight={700} sx={{ display: { xs: "none", sm: "block" } }}>
+                            14 gün kolay iade
+                        </Typography>
+                        <Typography variant="caption" fontWeight={700} sx={{ display: { xs: "none", md: "block" } }}>
+                            Güvenli ödeme
+                        </Typography>
+                    </Stack>
+                </Container>
+            </Box>
 
-                    {/* Arama Çubuğu - Desktop */}
-                    {!isMobile && (
-                        <Box sx={{ flex: 1, display: "flex", justifyContent: "center", maxWidth: "500px", mx: 2 }}>
-                            <Box
-                                sx={{
-                                    position: "relative",
-                                    width: "100%",
-                                    backgroundColor: "rgba(255,255,255,0.15)",
-                                    borderRadius: "25px",
-                                    backdropFilter: "blur(10px)",
-                                }}
-                            >
-                                <InputBase
-                                    placeholder="Ürün Ara..."
-                                    sx={{
-                                        width: "100%",
-                                        color: "#fff",
-                                        px: 2,
-                                        py: 1,
-                                        "&::placeholder": {
-                                            color: "rgba(255,255,255,0.7)",
-                                        },
-                                    }}
-                                />
-                                <IconButton
-                                    sx={{
-                                        position: "absolute",
-                                        right: 4,
-                                        top: "50%",
-                                        transform: "translateY(-50%)",
-                                        color: "#fff",
-                                    }}
-                                >
-                                    <Search size={20} />
-                                </IconButton>
-                            </Box>
-                        </Box>
-                    )}
-
-                    {/* Sağ Kısım */}
-                    <Box sx={{ display: "flex", alignItems: "center", gap: { xs: 0.5, md: 2 } }}>
-                        {/* Mobil Menü Butonu */}
+            <AppBar
+                position="sticky"
+                color="inherit"
+                elevation={0}
+                sx={{ borderBottom: "1px solid", borderColor: "divider" }}
+            >
+                <Container maxWidth="xl">
+                    <Toolbar disableGutters sx={{ minHeight: { xs: 68, md: 78 }, gap: { xs: 1, md: 3 } }}>
                         {isMobile && (
                             <IconButton
+                                aria-label="Menüyü aç"
                                 onClick={() => setMobileMenuOpen(true)}
-                                sx={{ color: "#fff", mr: 1 }}
                             >
-                                <MenuIcon size={24} />
+                                <MenuIcon size={22} />
                             </IconButton>
                         )}
 
-                        {/* Tema Değiştirme */}
-                        <DarkModeSwitch
-                            checked={darkMode}
-                            onChange={toggleTheme}
-                            size={isMobile ? 24 : 30}
-                            moonColor="#FFD700"
-                            sunColor="#FFA500"
-                        />
+                        <Box
+                            onClick={() => navigate("/")}
+                            sx={{ cursor: "pointer", display: "flex", alignItems: "baseline", minWidth: "fit-content" }}
+                        >
+                            <Typography
+                                component="span"
+                                sx={{ fontSize: { xs: "1.45rem", md: "1.75rem" }, fontWeight: 900, letterSpacing: "-0.06em" }}
+                            >
+                                NOVA
+                            </Typography>
+                            <Box component="span" sx={{ width: 7, height: 7, ml: 0.4, borderRadius: "50%", bgcolor: "secondary.main" }} />
+                        </Box>
 
-                        {/* Sepet */}
-                        <IconButton
-                            onClick={() => navigate("/cart")}
+                        <Box
+                            component="form"
+                            onSubmit={submitSearch}
                             sx={{
-                                color: "#fff",
-                                "&:hover": { backgroundColor: "rgba(255,255,255,0.1)" },
+                                flex: 1,
+                                maxWidth: 720,
+                                mx: "auto",
+                                display: { xs: "none", md: "flex" },
+                                alignItems: "center",
+                                bgcolor: "action.hover",
+                                border: "1px solid",
+                                borderColor: "divider",
+                                borderRadius: 2,
+                                px: 1.75,
                             }}
                         >
-                            <Badge badgeContent={totalItems} color="error">
-                                <ShoppingCart size={isMobile ? 20 : 24} />
-                            </Badge>
-                        </IconButton>
+                            <Search size={20} color={theme.palette.text.secondary} />
+                            <InputBase
+                                value={searchTerm}
+                                onChange={(event) => setSearchTerm(event.target.value)}
+                                placeholder="Ürün, kategori veya koleksiyon ara"
+                                inputProps={{ "aria-label": "Ürün ara" }}
+                                sx={{ flex: 1, ml: 1.25, py: 1 }}
+                            />
+                            <Button type="submit" size="small" sx={{ px: 2 }}>
+                                Ara
+                            </Button>
+                        </Box>
 
-                        {/* Kullanıcı Menüsü - Desktop */}
-                        {!isMobile && (
-                            <>
-                                {user ? (
-                                    <Box sx={{ display: "flex", alignItems: "center" }}>
-                                        <IconButton
-                                            onClick={handleAvatarClick}
-                                            sx={{
-                                                color: "#fff",
-                                                "&:hover": { backgroundColor: "rgba(255,255,255,0.1)" },
-                                            }}
-                                        >
-                                            <Avatar sx={{ width: 32, height: 32, bgcolor: "rgba(255,255,255,0.2)" }}>
-                                                {user?.username?.charAt(0).toUpperCase()}
-                                            </Avatar>
-                                            <ChevronDown size={16} style={{ marginLeft: 4 }} />
-                                        </IconButton>
-                                        <Menu
-                                            anchorEl={avatarAnchorEl}
-                                            open={Boolean(avatarAnchorEl)}
-                                            onClose={handleAvatarClose}
-                                            PaperProps={{
-                                                sx: {
-                                                    borderRadius: 2,
-                                                    mt: 1,
-                                                    minWidth: 180,
-                                                },
-                                            }}
-                                        >
-                                            <MenuItem onClick={() => handleNavigation("/profile")}>Profil</MenuItem>
-                                            <MenuItem onClick={() => handleNavigation("/orders")}>Siparişlerim</MenuItem>
-                                            {user.role === "admin" && (
-                                                <MenuItem onClick={() => handleNavigation("/admin")}>
-                                                    Admin Paneli
-                                                </MenuItem>
-                                            )}
-                                            <MenuItem
-                                                onClick={() => {
-                                                    logout();
-                                                    handleAvatarClose();
-                                                    navigate("/auth");
-                                                }}
-                                            >
-                                                Çıkış Yap
-                                            </MenuItem>
-                                        </Menu>
-                                    </Box>
-                                ) : (
-                                    <Button
-                                        variant="contained"
-                                        sx={{
-                                            backgroundColor: "rgba(255,255,255,0.2)",
-                                            color: "#fff",
-                                            "&:hover": { backgroundColor: "rgba(255,255,255,0.3)" },
-                                        }}
-                                        onClick={() => navigate("/auth")}
+                        <Stack direction="row" alignItems="center" spacing={{ xs: 0, sm: 0.5 }}>
+                            <Tooltip title={darkMode ? "Açık tema" : "Koyu tema"}>
+                                <IconButton aria-label="Temayı değiştir" onClick={toggleTheme}>
+                                    {darkMode ? <Sun size={21} /> : <Moon size={21} />}
+                                </IconButton>
+                            </Tooltip>
+                            <Tooltip title="Favoriler">
+                                <IconButton
+                                    aria-label="Favoriler"
+                                    onClick={() => navigate("/favorites")}
+                                    sx={{ display: { xs: "none", sm: "inline-flex" } }}
+                                >
+                                    <Badge badgeContent={favorites.length} color="secondary">
+                                        <Heart size={21} />
+                                    </Badge>
+                                </IconButton>
+                            </Tooltip>
+                            <Tooltip title="Sepetim">
+                                <IconButton aria-label="Sepetim" onClick={() => navigate("/cart")}>
+                                    <Badge badgeContent={totalItems} color="secondary">
+                                        <ShoppingBag size={22} />
+                                    </Badge>
+                                </IconButton>
+                            </Tooltip>
+
+                            {user ? (
+                                <>
+                                    <IconButton
+                                        aria-label="Hesap menüsü"
+                                        onClick={(event) => setAvatarAnchorEl(event.currentTarget)}
                                     >
-                                        Giriş
-                                    </Button>
-                                )}
-                            </>
-                        )}
-                    </Box>
-                </Toolbar>
+                                        <Avatar sx={{ width: 34, height: 34, bgcolor: "primary.main", fontSize: 14 }}>
+                                            {user.username?.charAt(0).toUpperCase()}
+                                        </Avatar>
+                                    </IconButton>
+                                    <Menu
+                                        anchorEl={avatarAnchorEl}
+                                        open={Boolean(avatarAnchorEl)}
+                                        onClose={() => setAvatarAnchorEl(null)}
+                                    >
+                                        <MenuItem onClick={() => navigateAndClose("/profile")}>Hesabım</MenuItem>
+                                        <MenuItem onClick={() => navigateAndClose("/orders")}>Siparişlerim</MenuItem>
+                                        {user.role === "admin" && (
+                                            <MenuItem onClick={() => navigateAndClose("/admin")}>Yönetim paneli</MenuItem>
+                                        )}
+                                        <MenuItem
+                                            sx={{ color: "error.main" }}
+                                            onClick={() => {
+                                                logout();
+                                                navigateAndClose("/");
+                                            }}
+                                        >
+                                            Çıkış yap
+                                        </MenuItem>
+                                    </Menu>
+                                </>
+                            ) : (
+                                <Button
+                                    onClick={() => navigate("/auth")}
+                                    startIcon={<UserRound size={18} />}
+                                    color="inherit"
+                                    sx={{ display: { xs: "none", sm: "inline-flex" }, whiteSpace: "nowrap" }}
+                                >
+                                    Giriş yap
+                                </Button>
+                            )}
+                        </Stack>
+                    </Toolbar>
+                </Container>
             </AppBar>
 
-            {/* Mobil Menü Drawer */}
             <Drawer
-                anchor="right"
+                anchor="left"
                 open={mobileMenuOpen}
-                onClose={handleMobileMenuClose}
-                PaperProps={{
-                    sx: {
-                        width: 280,
-                        background: darkMode
-                            ? "linear-gradient(135deg, #1e293b 0%, #0f172a 100%)"
-                            : "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
-                        color: "#fff",
-                    },
-                }}
+                onClose={() => setMobileMenuOpen(false)}
+                PaperProps={{ sx: { width: "min(88vw, 340px)", p: 2.5 } }}
             >
-                <Box sx={{ p: 2 }}>
-                    <Typography variant="h6" sx={{ mb: 2, color: "#fff" }}>
-                        Menü
-                    </Typography>
-                    {isMobile && (
-                        <Box sx={{ mb: 2, p: 2, backgroundColor: "rgba(255,255,255,0.1)", borderRadius: 2 }}>
-                            <InputBase
-                                placeholder="Ürün Ara..."
-                                sx={{
-                                    width: "100%",
-                                    color: "#fff",
-                                    backgroundColor: "rgba(255,255,255,0.15)",
-                                    borderRadius: 2,
-                                    px: 2,
-                                    py: 1,
-                                }}
-                            />
-                        </Box>
-                    )}
-                    <List>
-                        {user ? (
-                            <>
-                                <ListItem disablePadding>
-                                    <ListItemButton onClick={() => handleNavigation("/profile")}>
-                                        <ListItemText primary="Profil" />
-                                    </ListItemButton>
-                                </ListItem>
-                                <ListItem disablePadding>
-                                    <ListItemButton onClick={() => handleNavigation("/orders")}>
-                                        <ListItemText primary="Siparişlerim" />
-                                    </ListItemButton>
-                                </ListItem>
-                                {user.role === "admin" && (
-                                    <ListItem disablePadding>
-                                        <ListItemButton onClick={() => handleNavigation("/admin")}>
-                                            <ListItemText primary="Admin Paneli" />
-                                        </ListItemButton>
-                                    </ListItem>
-                                )}
-                                <ListItem disablePadding>
-                                    <ListItemButton
-                                        onClick={() => {
-                                            logout();
-                                            handleMobileMenuClose();
-                                            navigate("/auth");
-                                        }}
-                                    >
-                                        <ListItemText primary="Çıkış Yap" />
-                                    </ListItemButton>
-                                </ListItem>
-                            </>
-                        ) : (
-                            <ListItem disablePadding>
-                                <ListItemButton onClick={() => handleNavigation("/auth")}>
-                                    <ListItemText primary="Giriş Yap / Kayıt Ol" />
-                                </ListItemButton>
-                            </ListItem>
-                        )}
-                    </List>
+                <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ mb: 2 }}>
+                    <Typography variant="h6" fontWeight={900}>NOVA.</Typography>
+                    <IconButton aria-label="Menüyü kapat" onClick={() => setMobileMenuOpen(false)}>
+                        <X size={22} />
+                    </IconButton>
+                </Stack>
+                <Box
+                    component="form"
+                    onSubmit={submitSearch}
+                    sx={{
+                        display: "flex",
+                        alignItems: "center",
+                        bgcolor: "action.hover",
+                        borderRadius: 2,
+                        px: 1.5,
+                        mb: 2,
+                    }}
+                >
+                    <Search size={19} />
+                    <InputBase
+                        value={searchTerm}
+                        onChange={(event) => setSearchTerm(event.target.value)}
+                        placeholder="Ürün ara"
+                        sx={{ ml: 1, flex: 1, py: 0.75 }}
+                    />
                 </Box>
+                <List disablePadding>
+                    {[
+                        ["Ana sayfa", "/"],
+                        ["Yeni gelenler", "/new-products"],
+                        ["Fırsatlar", "/discounts"],
+                        ["Çok satanlar", "/best-sellers"],
+                        ["Favoriler", "/favorites"],
+                        [user ? "Hesabım" : "Giriş yap", user ? "/profile" : "/auth"],
+                    ].map(([label, path]) => (
+                        <ListItemButton key={path} onClick={() => navigateAndClose(path)}>
+                            <ListItemText primary={label} primaryTypographyProps={{ fontWeight: 700 }} />
+                        </ListItemButton>
+                    ))}
+                </List>
             </Drawer>
         </Box>
     );

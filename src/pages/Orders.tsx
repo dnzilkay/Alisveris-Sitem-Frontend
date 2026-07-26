@@ -10,12 +10,12 @@ import {
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
-import { getOrders, updateOrderStatus } from "../services/orderService";
+import { getOrders, StoreOrder, updateOrderStatus } from "../services/orderService";
 
 const Orders: React.FC = () => {
     const navigate = useNavigate();
     const { user } = useAuth();
-    const [orders, setOrders] = useState<any[]>([]);
+    const [orders, setOrders] = useState<StoreOrder[]>([]);
 
     useEffect(() => {
         if (!user?.id) return;
@@ -25,7 +25,7 @@ const Orders: React.FC = () => {
         getOrders()
             .then((allOrders) => {
                 console.log("Tüm Siparişler:", allOrders);
-                const userOrders = allOrders.filter((order: any) => order.userId === user.id);
+                const userOrders = allOrders.filter((order) => order.userId === user.id);
                 setOrders(userOrders);
             })
             .catch((error) => console.error("Siparişler alınırken hata oluştu:", error));

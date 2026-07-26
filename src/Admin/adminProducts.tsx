@@ -23,15 +23,28 @@ import {
     updateProduct,
 } from "../services/productService";
 import { fetchCategories } from "../services/categoryService";
+import { CatalogProduct } from "../data/catalog";
+import { CategoryWithProducts } from "../services/categoryService";
+
+interface ProductFormValues {
+    id: number;
+    name: string;
+    price: number;
+    stock: number;
+    sold: number;
+    categoryId: number;
+    images: { id: number; url: string }[];
+    isActive: boolean;
+}
 
 const AdminProducts: React.FC = () => {
-    const [products, setProducts] = useState<any[]>([]);
-    const [categories, setCategories] = useState<any[]>([]);
+    const [products, setProducts] = useState<CatalogProduct[]>([]);
+    const [categories, setCategories] = useState<CategoryWithProducts[]>([]);
     const [page, setPage] = useState(0);
     const [rowsPerPage, setRowsPerPage] = useState(5);
     const [modalOpen, setModalOpen] = useState(false);
     const [imageModalOpen, setImageModalOpen] = useState(false);
-    const [formValues, setFormValues] = useState({
+    const [formValues, setFormValues] = useState<ProductFormValues>({
         id: 0,
         name: "",
         price: 0,
@@ -71,9 +84,18 @@ const AdminProducts: React.FC = () => {
     }, []);
 
     // Modal Aç/Kapat
-    const handleOpenModal = (product?: typeof formValues) => {
+    const handleOpenModal = (product?: CatalogProduct) => {
         if (product) {
-            setFormValues(product);
+            setFormValues({
+                id: product.id,
+                name: product.name,
+                price: product.price,
+                stock: product.stock,
+                sold: product.sold,
+                categoryId: product.categoryId,
+                images: product.images.map(({ id, url }) => ({ id, url })),
+                isActive: product.isActive,
+            });
             setIsEditMode(true);
         } else {
             setFormValues({
@@ -103,7 +125,7 @@ const AdminProducts: React.FC = () => {
 
     // Form Doğrulama
     const validateForm = () => {
-        let errors = { name: "", price: "", stock: "" };
+        const errors = { name: "", price: "", stock: "" };
         let isValid = true;
 
         if (!formValues.name.trim()) {
@@ -143,9 +165,13 @@ const AdminProducts: React.FC = () => {
                 );
                 handleSnackbarMessage("Ürün başarıyla güncellendi!");
             } else {
-                const { id, ...productData } = formValues;
                 const newProduct = await createProduct({
-                    ...productData,
+                    name: formValues.name,
+                    price: formValues.price,
+                    stock: formValues.stock,
+                    sold: formValues.sold,
+                    categoryId: formValues.categoryId,
+                    isActive: formValues.isActive,
                     images: formattedImages, // Sadece URL'leri gönder
                 });
                 setProducts((prev) => [...prev, newProduct]);
@@ -164,7 +190,12 @@ const AdminProducts: React.FC = () => {
             const product = products.find((p) => p.id === productId);
             if (!product) return;
             const updatedProduct = await updateProduct(productId, {
-                ...product,
+                name: product.name,
+                price: product.price,
+                stock: product.stock,
+                sold: product.sold,
+                categoryId: product.categoryId,
+                images: product.images.map((image) => image.url),
                 isActive: !product.isActive,
             });
             setProducts((prev) =>

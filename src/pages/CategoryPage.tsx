@@ -1,207 +1,99 @@
 import React, { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
-import {
-    Box,
-    Typography,
-    Card,
-    CardContent,
-    CardMedia,
-    Pagination,
-    useMediaQuery,
-    useTheme,
-} from "@mui/material";
-import Grid from "@mui/material/Grid";
+import { Box, Button, Container, Grid, Stack, Typography } from "@mui/material";
+import { ArrowLeft } from "lucide-react";
+import { useNavigate, useParams } from "react-router-dom";
+import HomeNavbar from "../components/HomeNavbar";
+import ProductCard from "../components/ProductCard";
+import { CatalogCategory, CatalogProduct } from "../data/catalog";
 import { fetchCategoryById } from "../services/categoryService";
 import { fetchProducts } from "../services/productService";
 
-interface Product {
-    id: number;
-    name: string;
-    price: number;
-    categoryId: number;
-    images?: Array<{ url: string }>;
-}
-
 const CategoryPage: React.FC = () => {
-    const [error, setError] = useState<string | null>(null);
-    const [products, setProducts] = useState<Product[]>([]);
-    const [categoryName, setCategoryName] = useState<string>("");
-    const [currentPage, setCurrentPage] = useState(1);
-    const itemsPerPage = 10;
     const { id } = useParams<{ id: string }>();
     const navigate = useNavigate();
-    const theme = useTheme();
-    const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+    const [category, setCategory] = useState<CatalogCategory | null>(null);
+    const [products, setProducts] = useState<CatalogProduct[]>([]);
+    const [error, setError] = useState("");
 
     useEffect(() => {
-        const fetchCategoryAndProducts = async () => {
+        const loadCategory = async () => {
             try {
-                if (!id || isNaN(Number(id))) {
-                    setError("Geçersiz kategori ID");
-                    return;
-                }
-
-                // Kategori bilgilerini al
-                const categoryData = await fetchCategoryById(Number(id));
-
-                if (!categoryData || !categoryData.name) {
-                    setError("Kategori bilgisi bulunamadı.");
-                    return;
-                }
-
-                setCategoryName(categoryData.name);
-
-                // Kategoriye ait ürünleri çek
-                const allProducts = await fetchProducts();
-                const categoryProducts = allProducts.filter((product: Product) => product.categoryId === Number(id));
-
-                setProducts(categoryProducts);
-                setError(null);
-            } catch (error) {
-                console.error("Veriler alınırken hata oluştu:", error);
-                setError("Kategori ve ürün bilgileri alınırken bir hata oluştu.");
+                setError("");
+                const categoryId = Number(id);
+                const [categoryData, allProducts] = await Promise.all([
+                    fetchCategoryById(categoryId),
+                    fetchProducts(),
+                ]);
+                setCategory(categoryData);
+                setProducts(allProducts.filter((product) => product.categoryId === categoryId));
+            } catch (loadError) {
+                console.error("Kategori yüklenemedi:", loadError);
+                setError("Bu kategori bulunamadı.");
             }
         };
-
-        fetchCategoryAndProducts();
+        void loadCategory();
     }, [id]);
 
-    const paginatedProducts = products.slice(
-        (currentPage - 1) * itemsPerPage,
-        currentPage * itemsPerPage
-    );
-
-    const handlePageChange = (_: React.ChangeEvent<unknown>, value: number) => {
-        setCurrentPage(value);
-    };
+    if (error) {
+        return (
+            <Container maxWidth="md" sx={{ py: 10, textAlign: "center" }}>
+                <Typography variant="h4" fontWeight={900}>{error}</Typography>
+                <Button startIcon={<ArrowLeft size={18} />} onClick={() => navigate("/")} sx={{ mt: 2 }}>
+                    Mağazaya dön
+                </Button>
+            </Container>
+        );
+    }
 
     return (
-        <Box sx={{ padding: { xs: 2, sm: 3, md: 4 }, maxWidth: "1200px", margin: "0 auto" }}>
-            {error ? (
-                <Typography
-                    color="error"
-                    variant="h6"
-                    gutterBottom
+        <Box sx={{ minHeight: "70vh", bgcolor: "background.default" }}>
+            <HomeNavbar />
+            {category && (
+                <Box
                     sx={{
-                        textAlign: "center",
-                        py: 4,
-                        fontSize: { xs: "1rem", md: "1.25rem" },
+                        position: "relative",
+                        minHeight: { xs: 280, md: 360 },
+                        display: "flex",
+                        alignItems: "flex-end",
+                        color: "white",
+                        backgroundImage: `linear-gradient(90deg, rgba(10,18,30,.88), rgba(10,18,30,.25)), url(${category.image})`,
+                        backgroundSize: "cover",
+                        backgroundPosition: "center",
                     }}
                 >
-                    {error}
-                </Typography>
-            ) : (
-                <>
-                    <Typography
-                        variant="h4"
-                        gutterBottom
-                        sx={{
-                            fontWeight: 700,
-                            mb: 3,
-                            fontSize: { xs: "1.75rem", md: "2.5rem" },
-                            color: "primary.main",
-                        }}
-                    >
-                        {categoryName} Ürünleri
-                    </Typography>
-
-                    {paginatedProducts.length > 0 ? (
-                        <>
-                            <Grid container spacing={{ xs: 2, sm: 3, md: 3 }}>
-                                {paginatedProducts.map((product) => (
-                                    <Grid item xs={12} sm={6} md={4} lg={3} key={product.id}>
-                                        <Card
-                                            onClick={() => navigate(`/product/${product.id}`)}
-                                            sx={{
-                                                cursor: "pointer",
-                                                borderRadius: 3,
-                                                boxShadow: 3,
-                                                transition: "all 0.3s ease",
-                                                height: "100%",
-                                                display: "flex",
-                                                flexDirection: "column",
-                                                "&:hover": {
-                                                    boxShadow: 8,
-                                                    transform: "translateY(-4px)",
-                                                },
-                                            }}
-                                        >
-                                            <CardMedia
-                                                component="img"
-                                                sx={{
-                                                    height: { xs: 200, sm: 220, md: 240 },
-                                                    objectFit: "cover",
-                                                }}
-                                                image={product.images?.[0]?.url || "https://via.placeholder.com/200"}
-                                                alt={product.name}
-                                            />
-                                            <CardContent sx={{ flexGrow: 1 }}>
-                                                <Typography
-                                                    variant="h6"
-                                                    sx={{
-                                                        fontWeight: 600,
-                                                        mb: 1,
-                                                        overflow: "hidden",
-                                                        textOverflow: "ellipsis",
-                                                        display: "-webkit-box",
-                                                        WebkitLineClamp: 2,
-                                                        WebkitBoxOrient: "vertical",
-                                                    }}
-                                                >
-                                                    {product.name}
-                                                </Typography>
-                                                <Typography
-                                                    variant="h6"
-                                                    color="primary"
-                                                    sx={{ fontWeight: 700 }}
-                                                >
-                                                    {product.price.toLocaleString("tr-TR", {
-                                                        style: "currency",
-                                                        currency: "TRY",
-                                                    })}
-                                                </Typography>
-                                            </CardContent>
-                                        </Card>
-                                    </Grid>
-                                ))}
-                            </Grid>
-                            <Box
-                                sx={{
-                                    display: "flex",
-                                    justifyContent: "center",
-                                    marginTop: 4,
-                                }}
-                            >
-                                <Pagination
-                                    count={Math.ceil(products.length / itemsPerPage)}
-                                    page={currentPage}
-                                    onChange={handlePageChange}
-                                    color="primary"
-                                    size={isMobile ? "small" : "medium"}
-                                />
-                            </Box>
-                        </>
-                    ) : (
-                        <Box
-                            sx={{
-                                textAlign: "center",
-                                py: 8,
-                                backgroundColor: "background.paper",
-                                borderRadius: 3,
-                                boxShadow: 2,
-                            }}
-                        >
-                            <Typography
-                                variant="h6"
-                                color="text.secondary"
-                                sx={{ fontSize: { xs: "1rem", md: "1.25rem" } }}
-                            >
-                                Bu kategoriye ait ürün bulunamadı.
-                            </Typography>
-                        </Box>
-                    )}
-                </>
+                    <Container maxWidth="xl" sx={{ py: { xs: 4, md: 6 } }}>
+                        <Typography variant="overline" fontWeight={900} sx={{ color: "secondary.light" }}>
+                            NOVA seçkisi
+                        </Typography>
+                        <Typography component="h1" variant="h2" fontWeight={900} letterSpacing="-0.05em">
+                            {category.name}
+                        </Typography>
+                        <Typography sx={{ mt: 1, maxWidth: 590, color: "rgba(255,255,255,.78)" }}>
+                            {category.description}
+                        </Typography>
+                    </Container>
+                </Box>
             )}
+
+            <Container maxWidth="xl" sx={{ py: { xs: 5, md: 7 } }}>
+                <Stack direction="row" justifyContent="space-between" alignItems="flex-end" sx={{ mb: 3 }}>
+                    <Box>
+                        <Typography variant="h4" fontWeight={900} letterSpacing="-0.035em">
+                            Seçili ürünler
+                        </Typography>
+                        <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
+                            {products.length} ürün listeleniyor
+                        </Typography>
+                    </Box>
+                </Stack>
+                <Grid container spacing={2.5}>
+                    {products.map((product) => (
+                        <Grid item xs={12} sm={6} md={4} lg={3} key={product.id}>
+                            <ProductCard product={product} />
+                        </Grid>
+                    ))}
+                </Grid>
+            </Container>
         </Box>
     );
 };

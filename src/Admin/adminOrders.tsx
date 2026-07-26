@@ -19,7 +19,7 @@ import {
     Snackbar,
     Alert,
 } from "@mui/material";
-import { getOrders, updateOrderStatus } from "../services/orderService";
+import { getOrders, OrderItem as StoreOrderItem, StoreOrder, updateOrderStatus } from "../services/orderService";
 
 // Sipariş tipi tanımlaması
 interface OrderItem {
@@ -54,16 +54,16 @@ const AdminOrders: React.FC = () => {
                 const backendOrders = await getOrders();
 
                 // Backend'den gelen veriyi frontend için dönüştür
-                const transformedOrders = backendOrders.map((order: any) => ({
+                const transformedOrders = backendOrders.map((order: StoreOrder) => ({
                     id: order.id,
                     customer: order.User?.username || "Bilinmeyen Müşteri", // Kullanıcı adı
                     total: order.items?.reduce(
-                        (sum: number, item: any) =>
+                        (sum: number, item: StoreOrderItem) =>
                             sum + item.quantity * (item.Product?.price || 0),
                         0
                     ) || 0,
                     status: order.status || "Bilinmiyor",
-                    items: order.items?.map((item: any) => ({
+                    items: order.items?.map((item: StoreOrderItem) => ({
                         productName: item.Product?.name || "Bilinmeyen Ürün",
                         quantity: item.quantity || 0,
                         price: item.Product?.price || 0,

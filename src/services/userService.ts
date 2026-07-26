@@ -3,15 +3,23 @@ import apiClient from '../apiClient';
 const useBackend = import.meta.env.VITE_USE_BACKEND === "true";
 
 // **Mock Kullanıcı Listesi (Şifreler Dahil)**
-const mockUsers = [
+export interface StoreUser {
+    id: number;
+    username: string;
+    email: string;
+    password: string;
+    role: string;
+}
+
+const mockUsers: StoreUser[] = [
     { id: 1, username: "Admin", email: "admin@example.com", password: "admin123", role: "admin" },
     { id: 2, username: "User", email: "user@example.com", password: "user123", role: "user" },
 ];
 
 // **Tüm Kullanıcıları Listele**
-export const getUsers = async () => {
+export const getUsers = async (): Promise<StoreUser[]> => {
     if (useBackend) {
-        const response = await apiClient.get('/users');
+        const response = await apiClient.get<StoreUser[]>('/users');
         return response.data;
     } else {
         return new Promise((resolve) => setTimeout(() => resolve(mockUsers), 500));
@@ -19,9 +27,9 @@ export const getUsers = async () => {
 };
 
 // **Yeni Kullanıcı Ekle**
-export const addUser = async (user: { username: string; email: string; password: string; role: string }) => {
+export const addUser = async (user: Omit<StoreUser, "id">): Promise<StoreUser> => {
     if (useBackend) {
-        const response = await apiClient.post('/users/register', user);
+        const response = await apiClient.post<StoreUser>('/users/register', user);
         return response.data;
     } else {
         return new Promise((resolve) => {
@@ -35,9 +43,9 @@ export const addUser = async (user: { username: string; email: string; password:
 };
 
 // **Kullanıcı Güncelle**
-export const updateUser = async (id: number, user: { username?: string; email?: string; password?: string; role?: string }) => {
+export const updateUser = async (id: number, user: Partial<Omit<StoreUser, "id">>): Promise<StoreUser> => {
     if (useBackend) {
-        const response = await apiClient.put(`/users/${id}`, user);
+        const response = await apiClient.put<StoreUser>(`/users/${id}`, user);
         return response.data;
     } else {
         return new Promise((resolve) => {
@@ -46,6 +54,8 @@ export const updateUser = async (id: number, user: { username?: string; email?: 
                 if (index !== -1) {
                     mockUsers[index] = { ...mockUsers[index], ...user };
                     resolve(mockUsers[index]);
+                } else {
+                    throw new Error("Kullanıcı bulunamadı.");
                 }
             }, 500);
         });

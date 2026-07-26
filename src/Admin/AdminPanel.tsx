@@ -6,7 +6,7 @@ import {
     Typography,
     Drawer,
     List,
-    ListItem,
+    ListItemButton,
     ListItemText,
     IconButton,
 } from "@mui/material";
@@ -69,9 +69,7 @@ const AdminPanel: React.FC = () => {
                 </Typography>
                 <List>
                     {["Dashboard", "Users", "Products", "Orders", "Categories"].map((text, index) => (
-                       //@ts-ignore
-                        <ListItem
-                            button
+                        <ListItemButton
                             key={text}
                             onClick={() => setActiveTab(index)}
                             sx={{
@@ -96,7 +94,7 @@ const AdminPanel: React.FC = () => {
                                 )}
                             </IconButton>
                             <ListItemText primary={text} />
-                        </ListItem>
+                        </ListItemButton>
                     ))}
                 </List>
             </Drawer>

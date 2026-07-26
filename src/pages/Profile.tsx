@@ -21,7 +21,6 @@ const Profile: React.FC = () => {
                     // Tüm kullanıcıları alıyoruz
                     const users = await getUsers();
                     // Giriş yapan kullanıcının ID'siyle eşleşen kullanıcıyı filtreliyoruz
-                    // @ts-ignore
                     const currentUser = users.find((u) => u.id === user.id);
 
                     // Bulunan kullanıcının verilerini profileData'ya set ediyoruz
@@ -56,24 +55,22 @@ const Profile: React.FC = () => {
     }
 
     return (
-        <Box
-            sx={{
-                padding: { xs: 3, md: 4 },
-                maxWidth: { xs: "90%", sm: 500 },
-                margin: "auto",
-                boxShadow: 4,
-                borderRadius: 3,
-                backgroundColor: "background.paper",
-                mt: { xs: 2, md: 4 },
-            }}
-        >
+        <Box sx={{
+            padding: { xs: 2, sm: 3, md: 4 },
+            maxWidth: { xs: "100%", sm: 500 },
+            margin: "auto",
+            boxShadow: "0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1)",
+            borderRadius: 2,
+            backgroundColor: "#ffffff",
+            mx: { xs: 2, sm: "auto" }
+        }}>
             <Typography
                 variant="h4"
                 gutterBottom
                 sx={{
-                    fontWeight: 700,
-                    fontSize: { xs: "1.75rem", md: "2.5rem" },
-                    color: "primary.main",
+                    fontSize: { xs: "1.5rem", md: "2.125rem" },
+                    fontWeight: "bold",
+                    color: "#1e293b"
                 }}
             >
                 Profil Bilgileri
@@ -121,15 +118,16 @@ const Profile: React.FC = () => {
             {/* Çıkış Yap Butonu */}
             <Button
                 variant="contained"
-                color="error"
                 fullWidth
                 onClick={handleLogout}
                 sx={{
                     marginTop: 3,
+                    bgcolor: "#ef4444",
                     py: 1.5,
-                    borderRadius: 2,
-                    fontWeight: 600,
                     fontSize: "1rem",
+                    fontWeight: 600,
+                    "&:hover": { bgcolor: "#dc2626" },
+                    textTransform: "none"
                 }}
             >
                 Çıkış Yap

@@ -13,8 +13,9 @@ import {
 } from "@mui/material";
 import { useParams } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
-import { getOrders, updateOrderStatus } from "../services/orderService";
+import { getOrders, StoreOrder, updateOrderStatus } from "../services/orderService";
 import { fetchProducts } from "../services/productService";
+import { CatalogProduct, getProductImage } from "../data/catalog";
 
 const steps = ["Ödeme Bekleniyor", "Onaylandı", "Hazırlanıyor", "Teslim Edildi", "İptal Edildi"];
 
@@ -31,8 +32,8 @@ const getStatusStep = (status: string) => {
 const OrderDetail: React.FC = () => {
     const { id } = useParams<{ id: string }>();
     const { user } = useAuth();
-    const [order, setOrder] = useState<any | null>(null);
-    const [products, setProducts] = useState<any[]>([]);
+    const [order, setOrder] = useState<StoreOrder | null>(null);
+    const [products, setProducts] = useState<CatalogProduct[]>([]);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
@@ -48,7 +49,7 @@ const OrderDetail: React.FC = () => {
                     console.log("Tüm Ürünler:", fetchedProducts);
 
                     const selectedOrder = allOrders.find(
-                        (order: any) => order.userId === user.id && order.id === Number(id)
+                        (candidate) => candidate.userId === user.id && candidate.id === Number(id)
                     );
 
                     setOrder(selectedOrder || null);
@@ -66,7 +67,7 @@ const OrderDetail: React.FC = () => {
             updateOrderStatus(order.id, "İptal Edildi")
                 .then(() => {
                     console.log("Sipariş başarıyla iptal edildi.");
-                    setOrder((prevOrder: any) => prevOrder ? { ...prevOrder, status: "İptal Edildi" } : null);
+                    setOrder((prevOrder) => prevOrder ? { ...prevOrder, status: "İptal Edildi" } : null);
                 })
                 .catch((error) => console.error("Sipariş iptal edilirken hata:", error));
         }
@@ -117,8 +118,8 @@ const OrderDetail: React.FC = () => {
                     <Typography variant="h6">Ürünler</Typography>
                     <Grid container spacing={2}>
                         {order.items && order.items.length > 0 ? (
-                            order.items.map((item: any) => {
-                                const product = products.find((p: any) => p.id === item.productId);
+                            order.items.map((item) => {
+                                const product = products.find((candidate) => candidate.id === item.productId);
                                 return (
                                     <Grid item xs={12} key={item.productId}>
                                         <Box
@@ -136,7 +137,7 @@ const OrderDetail: React.FC = () => {
                                                 height="200"
                                                 image={
                                                     product?.images && product.images.length > 0
-                                                        ? product.images[0]
+                                                        ? getProductImage(product)
                                                         : "https://via.placeholder.com/200"
                                                 }
                                                 alt={product?.name || "Ürün Görseli"}
